@@ -4,36 +4,40 @@ import org.gradle.api.JavaVersion
 
 object StaticProperty {
 
-    data class Version(
-        val code: Int,
-        val name: String
-    )
-
-    fun defaultConfig(defaultConfig: DefaultConfig, version: Version) = defaultConfig.apply {
-        applicationId = "com.example.app"
-        minSdkVersion(21)
-        commonSetting(this, version)
+    fun baseExtension(project: BaseExtension) {
+        defaultConfig(project.defaultConfig)
+        commonBaseExtension(project)
     }
 
-    fun baseExtension(baseExtension: BaseExtension) = baseExtension.apply {
+    private fun defaultConfig(defaultConfig: DefaultConfig) =
+        defaultConfig.apply {
+            applicationId = ProjectProperty.APPLICATION_ID
+            minSdkVersion(ProjectProperty.MIN_SDK_VERSION)
+            multiDexEnabled = true
+            testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+            vectorDrawables.useSupportLibrary = true
+        }
+
+    private fun commonBaseExtension(baseExtension: BaseExtension) = baseExtension.apply {
+        ProjectProperty.buildFlavor(this)
         buildTypes {
             getByName("release") {
+                isShrinkResources = true
                 isMinifyEnabled = true
+                isUseProguard = true
                 proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
             }
         }
-        commonBaseExtension(this)
-    }
-
-    private fun commonSetting(defaultConfig: DefaultConfig, version: Version) = defaultConfig.apply {
-        versionCode = version.code
-        versionName = version.name
-        multiDexEnabled = true
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        vectorDrawables.useSupportLibrary = true
-    }
-
-    private fun commonBaseExtension(baseExtension: BaseExtension) = baseExtension.apply {
+        buildFeatures.run {
+            listOf(
+                ::dataBinding,
+                ::viewBinding,
+                ::compose
+            ).forEach { it.set(true) }
+        }
+        packagingOptions {
+            exclude("META-INF/*.kotlin_module")
+        }
         compileOptions {
             sourceCompatibility = JavaVersion.VERSION_1_8
             targetCompatibility = JavaVersion.VERSION_1_8

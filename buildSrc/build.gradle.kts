@@ -4,9 +4,9 @@ plugins {
 
 repositories {
     jcenter()
-    google()  // 追記
+    google()
 }
 
 dependencies {
-    implementation("com.android.tools.build:gradle:4.0.1")// 追記
+    implementation("com.android.tools.build:gradle:4.0.1")
 }
