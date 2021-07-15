@@ -180,6 +180,11 @@ subprojects {
                         implementation project(":domain:entity")
                         break
 
+                    case ~/project ':domain:service:(.*)'/:
+                        api project(":domain:service:core")
+                        api project(":domain:entity:core")
+                        break
+
                     case ~/project ':domain:entity:(.*)'/:
                         api project(":domain:entity:core")
                         break
