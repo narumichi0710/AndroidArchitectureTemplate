@@ -1,0 +1,2 @@
+# AndroidArchitectureTemplate
+Androidで新規開発する際のプロジェクトテンプレート
