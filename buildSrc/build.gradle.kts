@@ -3,6 +3,7 @@ plugins {
 }
 
 repositories {
+    jcenter()
     google()  // 追記
 }
 
