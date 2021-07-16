@@ -17,7 +17,7 @@ object ProjectProperty {
     }
 
     internal enum class BuildConfig(
-        val type: BuildConfigType,
+        val type: IBuildConfigType,
         val value: (FlavorType, BuildTypeType) -> String
     ) {
         IS_DEBUG_LOGGING(BuildConfigType.Boolean, { flavorType, _ ->
@@ -29,9 +29,15 @@ object ProjectProperty {
         })
     }
 
-    internal enum class BuildConfigType {
+    internal enum class BuildConfigType : IBuildConfigType {
         Boolean, String
     }
+
+    internal enum class CustomBuildConfigType(val fileFullPath: String) : IBuildConfigType {
+
+    }
+
+    interface IBuildConfigType
 
     private fun baseUrl(prefix: String?): String = "\"https://${prefix ?: ""}.arsaga.jp/v1/api/\""
 
