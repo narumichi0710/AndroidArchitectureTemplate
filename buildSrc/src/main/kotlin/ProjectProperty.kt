@@ -17,13 +17,13 @@ object ProjectProperty {
         defaultConfig {
             buildConfigField("Boolean", "IS_DEBUG_LOGGING", true.toString())
         }
-        fun baseUrl(prefix: String?): String = "\"https://${prefix ?: ""}.arsaga.jp/v1/api/\""
         productFlavors {
             FLAVORS.forEach {
                 create(it.key) {
                     val isProd = it.value
                     if (isProd) {
                         buildConfigField("Boolean", "IS_DEBUG_LOGGING", false.toString())
+                        buildConfigField("String", "BASE_URL", baseUrl(""))
                     } else {
                         buildConfigField("String", "BASE_URL", baseUrl(it.key))
                         if (isRoot) applicationIdSuffix = it.key
@@ -32,4 +32,6 @@ object ProjectProperty {
             }
         }
     }
+
+    private fun baseUrl(prefix: String?): String = "\"https://${prefix ?: ""}.arsaga.jp/v1/api/\""
 }

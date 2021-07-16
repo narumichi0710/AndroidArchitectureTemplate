@@ -1,5 +1,6 @@
 android {
     defaultConfig {
+        setCompileSdkVersion(30)
         setApplicationId(ProjectProperty.APPLICATION_ID)
     }
     StaticProperty.baseExtension(this, true)

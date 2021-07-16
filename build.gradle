@@ -33,32 +33,6 @@ buildscript {
 subprojects {
     afterEvaluate { subProject ->
         if (subProject.hasProperty('android')) {
-
-//            configurations {
-//                ktlint
-//            }
-//
-//            dependencies {
-//                ktlint "com.pinterest:ktlint:0.40.0"
-//            }
-//
-//            task ktlint(type: JavaExec, group: "verification") {
-//                description = "Check Kotlin code style"
-//                classpath = configurations.ktlint
-//                main = "com.pinterest.ktlint.Main"
-//                args "src/**/*.kt", "--reporter=checkstyle,output=${buildDir}/reports/ktlint-results.xml"
-//                ignoreExitValue true
-//            }
-//
-//            check.dependsOn ktlint
-//
-//            task ktlintFormat(type: JavaExec, group: "formatting") {
-//                description = "Fix Kotlin code style"
-//                classpath = configurations.ktlint
-//                main = "com.pinterest.ktlint.Main"
-//                args "-F", "src/**/*.kt"
-//            }
-
             dependencies {
 
                 implementation "com.jakewharton.timber:timber:4.7.1"
@@ -68,177 +42,62 @@ subprojects {
                         implementation 'androidx.appcompat:appcompat:1.3.0'
                         implementation 'com.google.android.material:material:1.3.0'
                         implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
-                        implementation platform('com.google.firebase:firebase-bom:25.13.0')
-                        implementation 'com.google.firebase:firebase-crashlytics-ktx'
-                        implementation 'com.google.firebase:firebase-analytics-ktx'
 
                         def nav_version = "2.3.3"
                         implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
                         implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
-                        break
-
-                    case "project ':domain:api'":
-                        implementation project(":domain:entity")
-                        api project(":extensions:gateway")
-
-                        api "com.squareup.retrofit2:retrofit:$retrofit_version"
-                        implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
-                        implementation "com.google.code.gson:gson:2.8.6"
-
-                        implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
-                        implementation "com.squareup.okhttp3:logging-interceptor:$okhttp_version"
-                        break
-
-                    case "project ':domain:db'":
-                        implementation project(":domain:entity")
-                        break
-
-                    case "project ':domain:entity'":
-                        break
-
-                    case "project ':domain:repository'":
-                        implementation project(":domain:api")
-                        implementation project(":domain:db")
-                        implementation project(":domain:entity")
-                        implementation "androidx.security:security-crypto:1.0.0"
-                        api project(":extensions:repository")
-                        break
-
-                    case "project ':presentation:viewmodel'":
-                        api project(":extensions:viewModel")
-                        implementation project(":domain:repository")
-                        api project(":domain:entity")
-                        break
-
-                    case "project ':presentation:view'":
-                        implementation project(":presentation:viewmodel")
-                        api project(":extensions:view")
-
-                        implementation 'com.google.android.material:material:1.3.0'
-                        implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
-
-                        def nav_version = "2.3.3"
-                        implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
-                        implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
-
-                        def fragment_version = "1.2.5"
-                        implementation "androidx.fragment:fragment-ktx:$fragment_version"
-
-                        def epoxy_version = "3.4.2"
-                        implementation "com.airbnb.android:epoxy:$epoxy_version"
-                        kapt "com.airbnb.android:epoxy-processor:$epoxy_version"
-                        implementation "com.airbnb.android:epoxy-databinding:$epoxy_version"
-                        break
-
-                    case "project ':extensions:view'":
-                        api project(':extensions:viewModel')
-                        api 'androidx.legacy:legacy-support-v4:1.0.0'
-                        api 'androidx.constraintlayout:constraintlayout:2.0.4'
-                        api 'androidx.browser:browser:1.3.0'
-
-                        api "androidx.navigation:navigation-fragment:$nav_version"
-                        api "androidx.navigation:navigation-ui:$nav_version"
-                        api "androidx.navigation:navigation-fragment-ktx:$nav_version"
-                        api "androidx.navigation:navigation-ui-ktx:$nav_version"
-
-                        kapt "com.github.bumptech.glide:compiler:$glide_version"
-                        api "com.github.bumptech.glide:glide:$glide_version"
-
-                        api "androidx.viewpager2:viewpager2:1.0.0"
-                        break
-
-                    case "project ':extensions:viewModel'":
-                        api 'com.google.android.material:material:1.3.0'
-                        api 'androidx.appcompat:appcompat:1.3.0'
-                        api "androidx.navigation:navigation-common:$nav_version"
-                        api "androidx.navigation:navigation-fragment-ktx:$nav_version"
-                        api 'androidx.recyclerview:recyclerview:1.2.1'
-                        break
-
-                    case "project ':extensions:gateway'":
-                        implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
-                        implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
-                        implementation "com.squareup.okhttp3:logging-interceptor:$okhttp_version"
                         break
                 }
 
                 // レイヤー毎のモジュール構成
-                switch (subProject.toString()) {
-                    case "project ':app'":
-                        getProject()
-                                .getRootProject()
-                                .getSubprojects()
-                                .forEach {
-                                    def denyModulePathList = [
-                                            ":app",
-                                            ":presentation",
-                                            ":presentation:viewModel",
-                                            ":domain",
-                                            ":domain:service",
-                                            ":domain:entity"
-                                    ]
-                                    println(it.name + " try exist")
-                                    if (!denyModulePathList.contains(it.path)) {
-                                        println(it.path + " exist")
-                                        implementation project(it.path)
-                                    } else {
-                                        println(it.path + " not exist")
-                                    }
-                                }
-                        break
+//                switch (subProject.toString()) {
+//                    case "project ':app'":
+//                        getProject()
+//                                .getRootProject()
+//                                .getSubprojects()
+//                                .forEach {
+//                                    def denyModulePathList = [
+//                                            ":app",
+//                                            ":presentation",
+//                                            ":presentation:viewModel",
+//                                            ":domain",
+//                                            ":domain:service",
+//                                            ":domain:entity"
+//                                    ]
+//                                    println(it.name + " try exist")
+//                                    if (!denyModulePathList.contains(it.path)) {
+//                                        println(it.path + " exist")
+//                                        implementation project(it.path)
+//                                    } else {
+//                                        println(it.path + " not exist")
+//                                    }
+//                                }
+//                        break
+//
+//                    case "project ':domain:api'":
+//                        implementation project(":domain:entity")
+//                        api project(":extensions:gateway")
+//                        break
+//
+//                    case "project ':domain:db'":
+//                        implementation project(":domain:entity")
+//                        break
 
-                    case "project ':domain:api'":
-                        implementation project(":domain:entity")
-                        api project(":extensions:gateway")
-                        break
-
-                    case "project ':domain:db'":
-                        implementation project(":domain:entity")
-                        break
-
-                    case ~/project ':presentation:viewModel:(.*)'/:
-                        api project(":presentation:viewModel:core")
-                        api project(":domain:service:core")
-                        api project(":domain:entity:core")
-                        break
-
-                    case ~/project ':domain:service:(.*)'/:
-                        api project(":domain:service:core")
-                        api project(":domain:entity:core")
-                        break
-
-                    case ~/project ':domain:entity:(.*)'/:
-                        api project(":domain:entity:core")
-                        break
-
-                    case "project ':domain:repository'":
-                        implementation project(":domain:api")
-                        implementation project(":domain:db")
-                        implementation project(":domain:entity")
-                        api project(":extensions:repository")
-                        break
-
-                    case "project ':presentation:viewmodel'":
-                        api project(":extensions:viewModel")
-                        implementation project(":domain:repository")
-                        api project(":domain:entity")
-                        break
-
-                    case "project ':presentation:view'":
-                        implementation project(":presentation:viewmodel")
-                        api project(":extensions:view")
-                        break
-
-                    case "project ':extensions:view'":
-                        api project(':extensions:viewModel')
-                        break
-
-                    case "project ':extensions:viewModel'":
-                        break
-
-                    case "project ':extensions:gateway'":
-                        break
-                }
+//                    case ~/project ':presentation:viewModel:(.*)'/:
+//                        api project(":presentation:viewModel:core")
+//                        api project(":domain:service:core")
+//                        api project(":domain:entity:core")
+//                        break
+//
+//                    case ~/project ':domain:service:(.*)'/:
+//                        api project(":domain:service:core")
+//                        api project(":domain:entity:core")
+//                        break
+//
+//                    case ~/project ':domain:entity:(.*)'/:
+//                        api project(":domain:entity:core")
+//                        break
+//                }
             }
 
             android {
@@ -255,6 +114,10 @@ subprojects {
                 }
                 kotlinOptions {
                     jvmTarget = '1.8'
+                }
+                buildFeatures {
+                    dataBinding true
+                    viewBinding true
                 }
             }
         }

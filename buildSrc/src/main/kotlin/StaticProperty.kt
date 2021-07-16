@@ -4,9 +4,9 @@ import org.gradle.api.JavaVersion
 
 object StaticProperty {
 
-    fun baseExtension(project: BaseExtension, isRoot: Boolean = false) {
-        defaultConfig(project.defaultConfig)
-        commonBaseExtension(project, isRoot)
+    fun baseExtension(baseExtension: BaseExtension, isRoot: Boolean = false) {
+        defaultConfig(baseExtension.defaultConfig)
+        commonBaseExtension(baseExtension, isRoot)
     }
 
     private fun defaultConfig(defaultConfig: DefaultConfig) =
@@ -19,7 +19,6 @@ object StaticProperty {
 
     private fun commonBaseExtension(baseExtension: BaseExtension, isRoot: Boolean) =
         baseExtension.apply {
-            ProjectProperty.buildFlavor(this, isRoot)
             buildTypes {
                 getByName("release") {
                     if (isRoot) {
@@ -33,13 +32,7 @@ object StaticProperty {
                     )
                 }
             }
-            buildFeatures.run {
-                listOf(
-                    ::dataBinding,
-                    ::viewBinding,
-                    ::compose
-                ).forEach { it.set(true) }
-            }
+            ProjectProperty.buildFlavor(this, isRoot)
             packagingOptions {
                 exclude("META-INF/*.kotlin_module")
             }
