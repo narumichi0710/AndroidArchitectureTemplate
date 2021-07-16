@@ -11,9 +11,9 @@ object ProjectProperty {
     }
 
     //FIXME:できればかっこいい名前にしたい
-    internal enum class BuildTypeType(val defaultExist: Boolean, val action: (BuildType) -> Unit) {
-        debug(true, {}),
-        release(true, {})
+    internal enum class BuildTypeType(val action: (BuildType) -> Unit) {
+        debug({}),
+        release({})
     }
 
     internal enum class BuildConfig(

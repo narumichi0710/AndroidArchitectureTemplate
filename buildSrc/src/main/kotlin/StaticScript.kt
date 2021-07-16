@@ -60,8 +60,12 @@ object StaticScript {
             ProjectProperty.FlavorType.values().forEach { flavorType ->
                 create(flavorType.name) {
                     buildTypes {
+                        val defaultExistBuildType = listOf(
+                            ProjectProperty.BuildTypeType.release,
+                            ProjectProperty.BuildTypeType.debug
+                        )
                         ProjectProperty.BuildTypeType.values().forEach { buildTypeType ->
-                            if (buildTypeType.defaultExist) getByName(buildTypeType.name) {
+                            if (buildTypeType in defaultExistBuildType) getByName(buildTypeType.name) {
                                 buildTypeType.action(this)
                             }
                             else create(buildTypeType.name) { buildTypeType.action(this) }
