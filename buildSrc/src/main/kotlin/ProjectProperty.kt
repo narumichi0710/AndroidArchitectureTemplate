@@ -1,4 +1,6 @@
 import com.android.build.gradle.BaseExtension
+import com.android.build.gradle.internal.dsl.BaseFlavor
+import com.android.build.gradle.internal.dsl.DefaultConfig
 
 object ProjectProperty {
 
@@ -12,20 +14,29 @@ object ProjectProperty {
         "dev" to false
     )
 
+    private enum class BuildConfig(val type: BuildConfigType) {
+        IS_DEBUG_LOGGING(BuildConfigType.Boolean),
+        BASE_URL(BuildConfigType.String)
+    }
+
+    private enum class BuildConfigType {
+        Boolean, String
+    }
+
     fun buildFlavor(baseExtension: BaseExtension, isRoot: Boolean) = baseExtension.apply {
         flavorDimensions("environment")
         defaultConfig {
-            buildConfigField("Boolean", "IS_DEBUG_LOGGING", true.toString())
+            setDefaultConfig(BuildConfig.IS_DEBUG_LOGGING, true.toString())
         }
         productFlavors {
             FLAVORS.forEach {
                 create(it.key) {
                     val isProd = it.value
                     if (isProd) {
-                        buildConfigField("Boolean", "IS_DEBUG_LOGGING", false.toString())
-                        buildConfigField("String", "BASE_URL", baseUrl(""))
+                        setDefaultConfig(BuildConfig.IS_DEBUG_LOGGING, false.toString())
+                        setDefaultConfig(BuildConfig.BASE_URL, baseUrl(""))
                     } else {
-                        buildConfigField("String", "BASE_URL", baseUrl(it.key))
+                        setDefaultConfig(BuildConfig.BASE_URL, baseUrl(it.key))
                         if (isRoot) applicationIdSuffix = it.key
                     }
                 }
@@ -34,4 +45,11 @@ object ProjectProperty {
     }
 
     private fun baseUrl(prefix: String?): String = "\"https://${prefix ?: ""}.arsaga.jp/v1/api/\""
+
+    private fun BaseFlavor.setDefaultConfig(
+        buildConfig: BuildConfig,
+        config: String
+    ) {
+        buildConfigField(buildConfig.type.name, buildConfig.name, config)
+    }
 }
