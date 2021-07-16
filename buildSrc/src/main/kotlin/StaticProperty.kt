@@ -19,20 +19,7 @@ object StaticProperty {
 
     private fun commonBaseExtension(baseExtension: BaseExtension, isRoot: Boolean) =
         baseExtension.apply {
-            buildTypes {
-                getByName("release") {
-                    if (isRoot) {
-                        isShrinkResources = true
-                    }
-                    isMinifyEnabled = true
-                    isUseProguard = true
-                    proguardFiles(
-                        getDefaultProguardFile("proguard-android.txt"),
-                        "proguard-rules.pro"
-                    )
-                }
-            }
-            ProjectProperty.buildFlavor(this, isRoot)
+            ProjectProperty.Script.buildFlavor(this, isRoot)
             packagingOptions {
                 exclude("META-INF/*.kotlin_module")
             }
