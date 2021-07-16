@@ -66,9 +66,9 @@ object StaticScript {
                         )
                         ProjectProperty.BuildTypeType.values().forEach { buildTypeType ->
                             if (buildTypeType in defaultExistBuildType) getByName(buildTypeType.name) {
-                                buildTypeType.action(this)
+                                buildTypeType.action(this, flavorType)
                             }
-                            else create(buildTypeType.name) { buildTypeType.action(this) }
+                            else create(buildTypeType.name) { buildTypeType.action(this, flavorType) }
                             ProjectProperty.BuildConfig.values().forEach {
                                 buildConfigField(it.type.name, it.name, it.value(flavorType, buildTypeType))
                             }

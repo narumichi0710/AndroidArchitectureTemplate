@@ -11,9 +11,9 @@ object ProjectProperty {
     }
 
     //FIXME:できればかっこいい名前にしたい
-    internal enum class BuildTypeType(val action: (BuildType) -> Unit) {
-        debug({}),
-        release({})
+    internal enum class BuildTypeType(val action: (BuildType, FlavorType) -> Unit) {
+        debug({_, _ ->}),
+        release({_, _ ->})
     }
 
     internal enum class BuildConfig(
