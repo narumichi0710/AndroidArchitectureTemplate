@@ -12,7 +12,6 @@ class App : Application() {
     }
 
     private fun saveSingleton() {
-        BuildConfig.IS_DEBUG_LOGGING
         listOf<Any>(
         ).forEach { persistentContainer.add(it) }
     }
