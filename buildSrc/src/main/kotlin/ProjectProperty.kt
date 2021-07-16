@@ -26,7 +26,8 @@ object ProjectProperty {
         BASE_URL(BuildConfigType.String, { flavorType, _ ->
             if (flavorType == FlavorType.prod) baseUrl("")
             else baseUrl(flavorType.name)
-        })
+        }),
+        ArrayMock(CustomBuildConfigType.StringArray, {_, _ -> "new java.util.ArrayList<>()"})
     }
 
     internal enum class BuildConfigType : IBuildConfigType {
@@ -34,7 +35,7 @@ object ProjectProperty {
     }
 
     internal enum class CustomBuildConfigType(val fileFullPath: String) : IBuildConfigType {
-
+        StringArray("java.util.ArrayList<String>")
     }
 
     interface IBuildConfigType
