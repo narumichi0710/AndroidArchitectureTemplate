@@ -167,7 +167,11 @@ subprojects {
                                 .getRootProject()
                                 .getSubprojects()
                                 .forEach {
-                                    implementation project(it.getPath())
+                                    try {
+                                        implementation project(it.getPath())
+                                    } finally {
+                                        println(it.name + " not exist")
+                                    }
                                 }
                         break
 

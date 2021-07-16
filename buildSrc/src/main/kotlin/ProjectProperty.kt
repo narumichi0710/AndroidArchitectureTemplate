@@ -6,23 +6,29 @@ object ProjectProperty {
 
     const val MIN_SDK_VERSION = 23
 
-    fun buildFlavor(baseExtension: BaseExtension) = baseExtension.apply {
+    private val FLAVORS = mapOf(
+        "prod" to true,
+        "stg" to false,
+        "dev" to false
+    )
+
+    fun buildFlavor(baseExtension: BaseExtension, isRoot: Boolean) = baseExtension.apply {
         flavorDimensions("environment")
         defaultConfig {
             buildConfigField("Boolean", "IS_DEBUG_LOGGING", true.toString())
         }
         fun baseUrl(prefix: String?): String = "\"https://${prefix ?: ""}.arsaga.jp/v1/api/\""
         productFlavors {
-            create("prod") {
-                buildConfigField("Boolean", "IS_DEBUG_LOGGING", false.toString())
-            }
-            create("stg") {
-                applicationIdSuffix = "stg"
-                buildConfigField("String", "BASE_URL", baseUrl(applicationIdSuffix))
-            }
-            create("dev") {
-                applicationIdSuffix = "dev"
-                buildConfigField("String", "BASE_URL", baseUrl(applicationIdSuffix))
+            FLAVORS.forEach {
+                create(it.key) {
+                    val isProd = it.value
+                    if (isProd) {
+                        buildConfigField("Boolean", "IS_DEBUG_LOGGING", false.toString())
+                    } else {
+                        buildConfigField("String", "BASE_URL", baseUrl(it.key))
+                        if (isRoot) applicationIdSuffix = it.key
+                    }
+                }
             }
         }
     }

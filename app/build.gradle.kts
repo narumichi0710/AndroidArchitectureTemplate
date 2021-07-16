@@ -1,5 +1,8 @@
 android {
-    StaticProperty.baseExtension(this)
+    defaultConfig {
+        setApplicationId(ProjectProperty.APPLICATION_ID)
+    }
+    StaticProperty.baseExtension(this, true)
 }
 
 plugins {
