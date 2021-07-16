@@ -161,16 +161,28 @@ subprojects {
                         implementation "com.squareup.okhttp3:logging-interceptor:$okhttp_version"
                         break
                 }
+
+                // レイヤー毎のモジュール構成
                 switch (subProject.toString()) {
                     case "project ':app'":
                         getProject()
                                 .getRootProject()
                                 .getSubprojects()
                                 .forEach {
-                                    try {
-                                        implementation project(it.getPath())
-                                    } finally {
-                                        println(it.name + " not exist")
+                                    def denyModulePathList = [
+                                            ":app",
+                                            ":presentation",
+                                            ":presentation:viewModel",
+                                            ":domain",
+                                            ":domain:service",
+                                            ":domain:entity"
+                                    ]
+                                    println(it.name + " try exist")
+                                    if (!denyModulePathList.contains(it.path)) {
+                                        println(it.path + " exist")
+                                        implementation project(it.path)
+                                    } else {
+                                        println(it.path + " not exist")
                                     }
                                 }
                         break
