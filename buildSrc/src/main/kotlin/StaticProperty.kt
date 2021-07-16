@@ -17,31 +17,35 @@ object StaticProperty {
             vectorDrawables.useSupportLibrary = true
         }
 
-    private fun commonBaseExtension(baseExtension: BaseExtension, isRoot: Boolean) = baseExtension.apply {
-        ProjectProperty.buildFlavor(this, isRoot)
-        if (isRoot) {
+    private fun commonBaseExtension(baseExtension: BaseExtension, isRoot: Boolean) =
+        baseExtension.apply {
+            ProjectProperty.buildFlavor(this, isRoot)
             buildTypes {
                 getByName("release") {
-                    isShrinkResources = true
+                    if (isRoot) {
+                        isShrinkResources = true
+                    }
                     isMinifyEnabled = true
                     isUseProguard = true
-                    proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
+                    proguardFiles(
+                        getDefaultProguardFile("proguard-android.txt"),
+                        "proguard-rules.pro"
+                    )
                 }
             }
+            buildFeatures.run {
+                listOf(
+                    ::dataBinding,
+                    ::viewBinding,
+                    ::compose
+                ).forEach { it.set(true) }
+            }
+            packagingOptions {
+                exclude("META-INF/*.kotlin_module")
+            }
+            compileOptions {
+                sourceCompatibility = JavaVersion.VERSION_1_8
+                targetCompatibility = JavaVersion.VERSION_1_8
+            }
         }
-        buildFeatures.run {
-            listOf(
-                ::dataBinding,
-                ::viewBinding,
-                ::compose
-            ).forEach { it.set(true) }
-        }
-        packagingOptions {
-            exclude("META-INF/*.kotlin_module")
-        }
-        compileOptions {
-            sourceCompatibility = JavaVersion.VERSION_1_8
-            targetCompatibility = JavaVersion.VERSION_1_8
-        }
-    }
 }
