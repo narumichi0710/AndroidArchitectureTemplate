@@ -57,44 +57,59 @@ object StaticScript {
             }
         }
 
-    private fun productBuildSetting(baseExtension: BaseExtension, isRoot: Boolean) =
-        baseExtension.apply {
-            productFlavors {
-                ProjectProperty.FlavorType.values().forEach { flavorType ->
-                    create(flavorType.name) {
-                        buildTypes {
-                            val defaultExistBuildType = listOf(
-                                ProjectProperty.BuildTypeType.release,
-                                ProjectProperty.BuildTypeType.debug
-                            )
-                            ProjectProperty.BuildTypeType.values().forEach { buildTypeType ->
-                                if (buildTypeType in defaultExistBuildType) getByName(buildTypeType.name) {
-                                    buildTypeType.action(this, flavorType)
-                                }
-                                else create(buildTypeType.name) {
-                                    buildTypeType.action(
-                                        this,
-                                        flavorType
-                                    )
-                                }
-                                ProjectProperty.BuildConfig.values().forEach {
-                                    getBuildConfigTypeFullPath(it.type)?.let { type ->
-                                        buildConfigField(
-                                            type,
-                                            it.name,
-                                            it.value(flavorType, buildTypeType)
-                                        )
-                                    }
-                                }
+    private fun productBuildSetting(
+        baseExtension: BaseExtension,
+        isRoot: Boolean
+    ) = baseExtension.apply {
+        productFlavors {
+            ProjectProperty.FlavorType.values().forEach { flavorType ->
+                create(flavorType.name) {
+                    buildTypes {
+                        ProjectProperty.BuildTypeType.values().forEach { buildTypeType ->
+                            if (buildTypeType in defaultExistBuildType) getByName(buildTypeType.name) {
+                                buildTypeType.action(this, flavorType)
                             }
+                            else create(buildTypeType.name) {
+                                buildTypeType.action(this, flavorType)
+                            }
+                            setBuildConfig(this@create, flavorType, buildTypeType)
+                            setManifestPlaceHolder(baseExtension, flavorType, buildTypeType)
                         }
-                        if (isRoot && flavorType != ProjectProperty.FlavorType.prod) {
-                            applicationIdSuffix = flavorType.name
-                        }
+                    }
+                    if (isRoot && flavorType != ProjectProperty.FlavorType.prod) {
+                        applicationIdSuffix = flavorType.name
                     }
                 }
             }
         }
+    }
+
+    /**
+     * gradle.ktsのBuildTypeの仕様として
+     * すでに存在するもの(release, debug)は取得、
+     * 自分で新たに作ったものは新規作成となっているので
+     * その条件分岐を判定するためのリスト
+     */
+    private val defaultExistBuildType = listOf(
+        ProjectProperty.BuildTypeType.release,
+        ProjectProperty.BuildTypeType.debug
+    )
+
+    private fun setBuildConfig(
+        baseFlavor: BaseFlavor,
+        flavorType: ProjectProperty.FlavorType,
+        buildTypeType: ProjectProperty.BuildTypeType
+    ) {
+        ProjectProperty.BuildConfig.values().forEach {
+            getBuildConfigTypeFullPath(it.type)?.let { type ->
+                baseFlavor.buildConfigField(
+                    type,
+                    it.name,
+                    it.value(flavorType, buildTypeType)
+                )
+            }
+        }
+    }
 
     private fun setManifestPlaceHolder(
         baseExtension: BaseExtension,
