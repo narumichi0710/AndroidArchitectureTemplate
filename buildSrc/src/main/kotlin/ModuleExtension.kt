@@ -3,39 +3,39 @@ import org.gradle.api.artifacts.dsl.DependencyHandler
 
 object ModuleExtension {
 
-    internal fun findLayerType(project: Project): ModuleStructure.LayerType? {
+    internal fun findModuleType(project: Project): ModuleStructure.ModuleType? {
         val projectName = convertEnumName(project)
-        return ModuleStructure.LayerType.values()
+        return ModuleStructure.ModuleType.values()
             .find { projectName.startsWith(it.name) }
+    }
+
+    internal fun implAllModule(
+        rootModuleType: ModuleStructure.ModuleType,
+        importAction: (ModuleStructure.ModuleType) -> Unit
+    ) {
+        ModuleStructure.ModuleType.values().toSet()
+            .minus(rootModuleType).forEach {
+                importAction(it)
+            }
     }
 
     private fun convertEnumName(project: Project): String = project.path
         .replace(":", "_")
 
-    internal fun convertModulePath(layerType: ModuleStructure.LayerType): String = layerType.name
+    private fun convertModulePath(moduleType: ModuleStructure.ModuleType): String = moduleType.name
         .replace("_", ":")
 
-    internal fun isCoreModule(project: Project): Boolean = project.path
-        .endsWith(ModuleStructure.coreModulePathPostfix)
-
-    internal fun implCoreModule(
-        project: Project,
-        fromUpperLayer: Boolean,
-        layerType: ModuleStructure.LayerType
-    ) {
-        if (!isCoreModule(project) || fromUpperLayer)
-            convertModulePath(layerType)
-                .plus(ModuleStructure.coreModulePathPostfix)
-                .run { project.dependencies.api(this) }
+     internal fun DependencyHandler.api(moduleType: ModuleStructure.ModuleType) {
+        convertModulePath(moduleType).let { modulePath ->
+            println("structure:api => $modulePath")
+            add("api", project(mapOf("path" to modulePath)))
+        }
     }
 
-    internal fun DependencyHandler.api(modulePath: String) {
-        println("structure:api => $modulePath")
-        add("api", project(mapOf("path" to modulePath)))
-    }
-
-    internal fun DependencyHandler.impl(modulePath: String) {
-        println("structure:impl => $modulePath")
-        add("implementation", project(mapOf("path" to modulePath)))
+    internal fun DependencyHandler.impl(moduleType: ModuleStructure.ModuleType) {
+        convertModulePath(moduleType).let { modulePath ->
+            println("structure:impl => $modulePath")
+            add("implementation", project(mapOf("path" to modulePath)))
+        }
     }
 }

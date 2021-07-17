@@ -1,63 +1,66 @@
 import ModuleExtension.api
+import ModuleExtension.impl
 import org.gradle.api.Project
+
+/**
+ * 各build.gradle.ktsから呼び出す関数
+ */
+fun Project.moduleStructure() {
+    afterEvaluate {
+        ModuleExtension.findModuleType(this)
+            ?.let { ModuleStructure.implModuleByLayerType(this, it) }
+    }
+}
 
 object ModuleStructure {
 
-    const val coreModulePathPostfix = "core"
-
-    internal enum class DomainType {
-        auth
+    /**
+     * モジュール一覧
+     * モジュール追加時に手動で追加する
+     * 命名規則として'_'を':'に置換してimplするので
+     * モジュール名に合わせて頭と各単語間に'_'が必須
+     */
+    internal enum class ModuleType {
+        _app,
+        _presentation_viewModel_auth,
+        _presentation_viewModel_core,
+        _domain_service_auth,
+        _domain_service_core,
+        _domain_entity_auth,
+        _domain_entity_core,
     }
 
-    internal enum class LayerType {
-        _presentation_viewModel_,
-        _domain_service_,
-        _domain_entity_,
-    }
-}
-
-fun Project.moduleStructure() {
-    afterEvaluate {
-        ModuleExtension.findLayerType(this)
-            ?.let { implModuleByLayerType(this, it) }
-    }
-}
-
-private fun implModuleByLayerType(
-    project: Project,
-    layerType: ModuleStructure.LayerType
-) {
-    when (layerType) {
-        ModuleStructure.LayerType._presentation_viewModel_ -> Impl.coreViewModel(project)
-        ModuleStructure.LayerType._domain_service_ -> Impl.coreService(project)
-        ModuleStructure.LayerType._domain_entity_ -> Impl.coreEntity(project)
-    }
-}
-
-object Impl {
-    internal fun coreViewModel(project: Project, fromUpperLayer: Boolean = false) {
-        coreService(project, true)
-        ModuleExtension.implCoreModule(
-            project,
-            fromUpperLayer,
-            ModuleStructure.LayerType._presentation_viewModel_
-        )
-    }
-
-    internal fun coreService(project: Project, fromUpperLayer: Boolean = false) {
-        coreEntity(project, true)
-        ModuleExtension.implCoreModule(
-            project,
-            fromUpperLayer,
-            ModuleStructure.LayerType._domain_service_
-        )
-    }
-
-    internal fun coreEntity(project: Project, fromUpperLayer: Boolean = false) {
-        ModuleExtension.implCoreModule(
-            project,
-            fromUpperLayer,
-            ModuleStructure.LayerType._domain_entity_
-        )
+    /**
+     * 各モジュールがどのモジュールをインポートするのかを定義するスイッチ文
+     * appモジュールは全モジュールをimplするようにしている
+     */
+    internal fun implModuleByLayerType(
+        project: Project,
+        moduleType: ModuleType
+    ) = project.dependencies.apply {
+        when (moduleType) {
+            ModuleType._app -> ModuleExtension.implAllModule(ModuleType._app) {
+                impl(it)
+            }
+            ModuleType._presentation_viewModel_auth -> {
+                api(ModuleType._presentation_viewModel_core)
+                api(ModuleType._domain_service_auth)
+            }
+            ModuleType._presentation_viewModel_core -> {
+                api(ModuleType._domain_service_core)
+            }
+            ModuleType._domain_service_auth -> {
+                api(ModuleType._domain_service_core)
+                api(ModuleType._domain_entity_auth)
+            }
+            ModuleType._domain_service_core -> {
+                api(ModuleType._domain_entity_core)
+            }
+            ModuleType._domain_entity_auth -> {
+                api(ModuleType._domain_entity_core)
+            }
+            ModuleType._domain_entity_core -> {
+            }
+        }
     }
 }
