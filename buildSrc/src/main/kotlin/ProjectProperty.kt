@@ -10,12 +10,21 @@ object ProjectProperty {
         prod, stg, dev
     }
 
+    /**
+     * このプロジェクトにおけるBuildType一覧
+     * ラムダにはビルドタイプ毎に実行したいコードが書ける
+     */
     //FIXME:できればかっこいい名前にしたい
     internal enum class BuildTypeType(val action: (BuildType, FlavorType) -> Unit) {
-        debug({_, _ ->}),
-        release({_, _ ->})
+        debug({ _, _ -> }),
+        release({ _, _ -> })
     }
 
+    /**
+     * 環境変数一覧
+     * プロパティの型と、環境別で値の出し分けロジックを書く
+     * ラムダの中の返り値のStringをパースしたものをそのままプロダクト実装コードで使える
+     */
     internal enum class BuildConfig(
         val type: IBuildConfigType,
         val value: (FlavorType, BuildTypeType) -> String
@@ -30,20 +39,38 @@ object ProjectProperty {
         ArrayMock(CustomBuildConfigType.StringArray, {_, _ -> "new java.util.ArrayList<>()"})
     }
 
+    /**
+     * プリミティブ型の一覧
+     */
     internal enum class BuildConfigType : IBuildConfigType {
         Boolean, String
     }
 
+    /**
+     * 環境毎に様々な型の値を出せるが、複雑なものは環境毎のパッケージを作ってKotlinで書いた方が保守性が高い
+     */
     internal enum class CustomBuildConfigType(val fileFullPath: String) : IBuildConfigType {
         StringArray("java.util.ArrayList<String>")
     }
 
+    /**
+     * 型定義のクラスをマーキングするためのインターフェース
+     */
     interface IBuildConfigType
 
+    /**
+     * URLのパスの向き先を定義する
+     * WebViewやCDNやSaaS用の種類が追加される想定
+     */
     private enum class UrlType {
         API
     }
 
+    /**
+     * APIのパスを生成する関数。
+     * 第一引数で用途毎の出し分け、
+     * 第二引数で「dev」や「stg」を埋め込む想定。
+     */
     private fun baseUrl(urlType: UrlType, prefix: String?): String = when (urlType) {
         UrlType.API -> "\"https://${prefix ?: ""}.arsaga.jp/v1/api/\""
     }
