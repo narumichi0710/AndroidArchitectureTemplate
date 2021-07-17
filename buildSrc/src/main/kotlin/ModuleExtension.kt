@@ -1,29 +1,7 @@
-import Extension.api
 import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.DependencyHandler
 
-object ModuleStructure {
-
-    const val coreModulePathPostfix = "core"
-
-    internal enum class DomainType {
-        auth
-    }
-
-    internal enum class LayerType {
-        _presentation_viewModel_,
-        _domain_service_,
-        _domain_entity_,
-    }
-}
-
-fun Project.moduleStructure() {
-    afterEvaluate {
-    }
-}
-
-}
-object Extension {
+object ModuleExtension {
 
     internal fun findLayerType(project: Project): ModuleStructure.LayerType? {
         val projectName = convertEnumName(project)
@@ -37,6 +15,8 @@ object Extension {
     internal fun convertModulePath(layerType: ModuleStructure.LayerType): String = layerType.name
         .replace("_", ":")
 
+    internal fun isCoreModule(project: Project): Boolean = project.path
+        .endsWith(ModuleStructure.coreModulePathPostfix)
 
     internal fun DependencyHandler.api(modulePath: String) {
         println("structure:api => $modulePath")
