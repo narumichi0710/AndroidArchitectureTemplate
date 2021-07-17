@@ -28,13 +28,21 @@ private fun implModuleByLayerType(
     layerType: ModuleStructure.LayerType
 ) {
     when (layerType) {
-        ModuleStructure.LayerType._presentation_viewModel_ -> null
+        ModuleStructure.LayerType._presentation_viewModel_ -> Impl.coreViewModel(project)
         ModuleStructure.LayerType._domain_service_ -> Impl.coreService(project)
         ModuleStructure.LayerType._domain_entity_ -> Impl.coreEntity(project)
     }
 }
 
 object Impl {
+    internal fun coreViewModel(project: Project, fromUpperLayer: Boolean = false) {
+        coreService(project, true)
+        if (!ModuleExtension.isCoreModule(project) || fromUpperLayer)
+            ModuleExtension.convertModulePath(ModuleStructure.LayerType._presentation_viewModel_)
+                .plus(ModuleStructure.coreModulePathPostfix)
+                .run { project.dependencies.api(this) }
+    }
+
     internal fun coreService(project: Project, fromUpperLayer: Boolean = false) {
         coreEntity(project, true)
         if (!ModuleExtension.isCoreModule(project) || fromUpperLayer)
