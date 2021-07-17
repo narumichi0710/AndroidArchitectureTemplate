@@ -18,6 +18,17 @@ object ModuleExtension {
     internal fun isCoreModule(project: Project): Boolean = project.path
         .endsWith(ModuleStructure.coreModulePathPostfix)
 
+    internal fun implCoreModule(
+        project: Project,
+        fromUpperLayer: Boolean,
+        layerType: ModuleStructure.LayerType
+    ) {
+        if (!isCoreModule(project) || fromUpperLayer)
+            convertModulePath(layerType)
+                .plus(ModuleStructure.coreModulePathPostfix)
+                .run { project.dependencies.api(this) }
+    }
+
     internal fun DependencyHandler.api(modulePath: String) {
         println("structure:api => $modulePath")
         add("api", project(mapOf("path" to modulePath)))

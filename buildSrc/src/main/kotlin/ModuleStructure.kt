@@ -37,24 +37,27 @@ private fun implModuleByLayerType(
 object Impl {
     internal fun coreViewModel(project: Project, fromUpperLayer: Boolean = false) {
         coreService(project, true)
-        if (!ModuleExtension.isCoreModule(project) || fromUpperLayer)
-            ModuleExtension.convertModulePath(ModuleStructure.LayerType._presentation_viewModel_)
-                .plus(ModuleStructure.coreModulePathPostfix)
-                .run { project.dependencies.api(this) }
+        ModuleExtension.implCoreModule(
+            project,
+            fromUpperLayer,
+            ModuleStructure.LayerType._presentation_viewModel_
+        )
     }
 
     internal fun coreService(project: Project, fromUpperLayer: Boolean = false) {
         coreEntity(project, true)
-        if (!ModuleExtension.isCoreModule(project) || fromUpperLayer)
-            ModuleExtension.convertModulePath(ModuleStructure.LayerType._domain_service_)
-                .plus(ModuleStructure.coreModulePathPostfix)
-                .run { project.dependencies.api(this) }
+        ModuleExtension.implCoreModule(
+            project,
+            fromUpperLayer,
+            ModuleStructure.LayerType._domain_service_
+        )
     }
 
     internal fun coreEntity(project: Project, fromUpperLayer: Boolean = false) {
-        if (!ModuleExtension.isCoreModule(project) || fromUpperLayer)
-            ModuleExtension.convertModulePath(ModuleStructure.LayerType._domain_entity_)
-                .plus(ModuleStructure.coreModulePathPostfix)
-                .run { project.dependencies.api(this) }
+        ModuleExtension.implCoreModule(
+            project,
+            fromUpperLayer,
+            ModuleStructure.LayerType._domain_entity_
+        )
     }
 }
