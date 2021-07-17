@@ -1,6 +1,5 @@
-import Extension.api
+import ModuleExtension.api
 import org.gradle.api.Project
-import org.gradle.api.artifacts.dsl.DependencyHandler
 
 object ModuleStructure {
 
@@ -19,32 +18,27 @@ object ModuleStructure {
 
 fun Project.moduleStructure() {
     afterEvaluate {
+        ModuleExtension.findLayerType(this)
+            ?.let { implModuleByLayerType(this, it) }
     }
 }
 
+private fun implModuleByLayerType(
+    project: Project,
+    layerType: ModuleStructure.LayerType
+) {
+    when (layerType) {
+        ModuleStructure.LayerType._presentation_viewModel_ -> null
+        ModuleStructure.LayerType._domain_service_ -> null
+        ModuleStructure.LayerType._domain_entity_ -> Impl.coreEntity(project)
+    }
 }
-object Extension {
 
-    internal fun findLayerType(project: Project): ModuleStructure.LayerType? {
-        val projectName = convertEnumName(project)
-        return ModuleStructure.LayerType.values()
-            .find { projectName.startsWith(it.name) }
-    }
-
-    private fun convertEnumName(project: Project): String = project.path
-        .replace(":", "_")
-
-    internal fun convertModulePath(layerType: ModuleStructure.LayerType): String = layerType.name
-        .replace("_", ":")
-
-
-    internal fun DependencyHandler.api(modulePath: String) {
-        println("structure:api => $modulePath")
-        add("api", project(mapOf("path" to modulePath)))
-    }
-
-    internal fun DependencyHandler.impl(modulePath: String) {
-        println("structure:impl => $modulePath")
-        add("implementation", project(mapOf("path" to modulePath)))
+object Impl {
+    internal fun coreEntity(project: Project) {
+        if (!ModuleExtension.isCoreModule(project))
+            ModuleExtension.convertModulePath(ModuleStructure.LayerType._domain_entity_)
+                .plus(ModuleStructure.coreModulePathPostfix)
+                .run { project.dependencies.api(this) }
     }
 }
