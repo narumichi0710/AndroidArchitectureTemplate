@@ -47,62 +47,13 @@ subprojects {
                         implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
                         implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
                         break
-                }
 
-                // レイヤー毎のモジュール構成
-//                switch (subProject.toString()) {
-//                    case "project ':app'":
-//                        getProject()
-//                                .getRootProject()
-//                                .getSubprojects()
-//                                .forEach {
-//                                    def denyModulePathList = [
-//                                            ":app",
-//                                            ":presentation",
-//                                            ":presentation:viewModel",
-//                                            ":domain",
-//                                            ":domain:service",
-//                                            ":domain:entity"
-//                                    ]
-//                                    println(it.name + " try exist")
-//                                    if (!denyModulePathList.contains(it.path)) {
-//                                        println(it.path + " exist")
-//                                        implementation project(it.path)
-//                                    } else {
-//                                        println(it.path + " not exist")
-//                                    }
-//                                }
-//                        break
-//
-//                    case "project ':domain:api'":
-//                        implementation project(":domain:entity")
-//                        api project(":extensions:gateway")
-//                        break
-//
-//                    case "project ':domain:db'":
-//                        implementation project(":domain:entity")
-//                        break
-
-//                    case ~/project ':presentation:viewModel:(.*)'/:
-//                        api project(":presentation:viewModel:core")
-//                        api project(":domain:service:core")
-//                        api project(":domain:entity:core")
-//                        break
-//
-//                    case ~/project ':domain:service:(.*)'/:
-//                        api project(":domain:service:core")
-//                        api project(":domain:entity:core")
-//                        break
-//
-//                    case ~/project ':domain:entity:(.*)'/:
-//                        api project(":domain:entity:core")
-//                        break
-//                }
                     case "project ':presentation:viewModel:core'":
                         def lifecycle_version = "2.3.0"
                         api "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
                         api "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
                         break
+                }
             }
 
             android {
