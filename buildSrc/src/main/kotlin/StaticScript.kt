@@ -77,9 +77,9 @@ object StaticScript {
                                     )
                                 }
                                 ProjectProperty.BuildConfig.values().forEach {
-                                    getBuildConfigTypeFullPath(it.type)?.let { name ->
+                                    getBuildConfigTypeFullPath(it.type)?.let { type ->
                                         buildConfigField(
-                                            name,
+                                            type,
                                             it.name,
                                             it.value(flavorType, buildTypeType)
                                         )
