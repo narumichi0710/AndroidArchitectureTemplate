@@ -24,8 +24,8 @@ object ProjectProperty {
             (flavorType != FlavorType.prod).toString()
         }),
         BASE_URL(BuildConfigType.String, { flavorType, _ ->
-            if (flavorType == FlavorType.prod) baseUrl("")
-            else baseUrl(flavorType.name)
+            if (flavorType == FlavorType.prod) baseUrl(UrlType.API, "")
+            else baseUrl(UrlType.API, flavorType.name)
         }),
         ArrayMock(CustomBuildConfigType.StringArray, {_, _ -> "new java.util.ArrayList<>()"})
     }
@@ -40,6 +40,11 @@ object ProjectProperty {
 
     interface IBuildConfigType
 
-    private fun baseUrl(prefix: String?): String = "\"https://${prefix ?: ""}.arsaga.jp/v1/api/\""
+    private enum class UrlType {
+        API
+    }
 
+    private fun baseUrl(urlType: UrlType, prefix: String?): String = when (urlType) {
+        UrlType.API -> "\"https://${prefix ?: ""}.arsaga.jp/v1/api/\""
+    }
 }
