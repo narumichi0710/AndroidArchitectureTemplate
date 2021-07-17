@@ -1,4 +1,5 @@
 import com.android.build.gradle.BaseExtension
+import com.android.build.gradle.internal.dsl.BaseFlavor
 import com.android.build.gradle.internal.dsl.DefaultConfig
 import org.gradle.api.JavaVersion
 
@@ -94,6 +95,16 @@ object StaticScript {
                 }
             }
         }
+
+    private fun setManifestPlaceHolder(
+        baseExtension: BaseExtension,
+        flavorType: ProjectProperty.FlavorType,
+        buildTypeType: ProjectProperty.BuildTypeType
+    ) {
+        ProjectProperty.ManifestPlaceHolderType.values()
+            .map { it.name to it.value(flavorType, buildTypeType) }
+            .let { baseExtension.defaultConfig.addManifestPlaceholders(it.toMap()) }
+    }
 
     private fun getBuildConfigTypeFullPath(
         buildConfigType: ProjectProperty.IBuildConfigType

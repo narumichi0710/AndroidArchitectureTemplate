@@ -20,6 +20,16 @@ object ProjectProperty {
         release({ _, _ -> })
     }
 
+    internal enum class ManifestPlaceHolderType(val value: (FlavorType, BuildTypeType) -> String) {
+        appName({ flavorType, _ ->
+            if (flavorType == FlavorType.prod) {
+                ""
+            } else {
+                flavorType.name
+            }.plus("アルサーガテンプレート")
+        })
+    }
+
     /**
      * 環境変数一覧
      * プロパティの型と、環境別で値の出し分けロジックを書く

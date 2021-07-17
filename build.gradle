@@ -64,9 +64,6 @@ subprojects {
                     versionName = version.name
                     targetSdkVersion 30
                     buildConfigField("String", "APP_VERSION", "\"" + versionName + "\"")
-                    manifestPlaceholders = manifestPlaceholders + [
-                            appName: "@string/app_store_name"
-                    ]
                 }
                 kotlinOptions {
                     jvmTarget = '1.8'
