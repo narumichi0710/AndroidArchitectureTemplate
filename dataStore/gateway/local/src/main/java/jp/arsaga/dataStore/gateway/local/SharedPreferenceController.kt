@@ -37,12 +37,6 @@ object SharedPreferenceController {
     ): String? = getValue(sharedPreferences, localDataKey.key()) {
         sharedPreferences?.getString(localDataKey.key(), localDataKey.defaultValue)
     }
-    fun get(
-        sharedPreferences: SharedPreferences?,
-        localDataKey: LocalDataKey.StringSet
-    ): MutableSet<String>? = getValue(sharedPreferences, localDataKey.key()) {
-        sharedPreferences?.getStringSet(localDataKey.key(), localDataKey.defaultValue)
-    }
     private fun <T> getValue(
         sharedPreferences: SharedPreferences?,
         key: String,
@@ -95,14 +89,6 @@ object SharedPreferenceController {
         value: String?
     ) {
         sharedPreferences?.putString(localDataKey.key(), value)
-        putLog(localDataKey, value)
-    }
-    fun put(
-        sharedPreferences: SharedPreferences.Editor?,
-        localDataKey: LocalDataKey.StringSet,
-        value: Set<String>?
-    ) {
-        sharedPreferences?.putStringSet(localDataKey.key(), value)
         putLog(localDataKey, value)
     }
     private fun putLog(localDataKey: LocalDataKey<*>, value: Any?) {

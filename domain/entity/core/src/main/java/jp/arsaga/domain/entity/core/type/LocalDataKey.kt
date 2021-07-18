@@ -9,5 +9,4 @@ interface LocalDataKey<T> {
     enum class Float : LocalDataKey<kotlin.Float>
     enum class Boolean : LocalDataKey<kotlin.Boolean>
     enum class String : LocalDataKey<kotlin.String?>
-    enum class StringSet : LocalDataKey<Set<kotlin.String>?>
 }
