@@ -6,7 +6,7 @@ object ModuleExtension {
     internal fun findModuleType(project: Project): ModuleStructure.ModuleType? {
         val projectName = convertEnumName(project)
         return ModuleStructure.ModuleType.values()
-            .find { projectName.startsWith(it.name) }
+            .find { projectName == it.name }
     }
 
     internal fun implAllModule(
