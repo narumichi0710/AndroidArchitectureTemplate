@@ -82,6 +82,6 @@ object ProjectProperty {
      * 第二引数で「dev」や「stg」を埋め込む想定。
      */
     private fun baseUrl(urlType: UrlType, prefix: String?): String = when (urlType) {
-        UrlType.API -> "\"https://${prefix ?: ""}.arsaga.jp/v1/api/\""
-    }
+        UrlType.API -> "https://${prefix ?: ""}.arsaga.jp/v1/api/"
+    }.let { "\"$it\"" }
 }
