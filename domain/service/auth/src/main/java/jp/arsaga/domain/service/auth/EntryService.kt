@@ -1,13 +1,13 @@
 package jp.arsaga.domain.service.auth
 
+import androidx.lifecycle.MutableLiveData
 import jp.arsaga.domain.service.core.BaseService
-import kotlinx.coroutines.flow.MutableStateFlow
 
 class EntryService(
     override val dependency: Dependency
 ) : BaseService<EntryService.Dependency>  {
 
-    val passwordInput = MutableStateFlow("")
+    val passwordInput = MutableLiveData("")
 
     data class Dependency(
         override val command: Command,

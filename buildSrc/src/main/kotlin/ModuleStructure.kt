@@ -86,6 +86,7 @@ object ModuleStructure {
             }
             ModuleType._presentation_viewModel_auth -> {
                 api(ModuleType._presentation_viewModel_core)
+                impl(ModuleType._dataStore_repository_auth)
                 api(ModuleType._domain_service_auth)
             }
             ModuleType._presentation_viewModel_core -> {
