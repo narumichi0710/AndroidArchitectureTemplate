@@ -2,16 +2,6 @@ import ModuleExtension.api
 import ModuleExtension.impl
 import org.gradle.api.Project
 
-/**
- * 各build.gradle.ktsから呼び出す関数
- */
-fun Project.moduleStructure() {
-    afterEvaluate {
-        ModuleExtension.findModuleType(this)
-            ?.let { ModuleStructure.implModuleByLayerType(this, it) }
-    }
-}
-
 object ModuleStructure {
 
     /**
@@ -34,16 +24,15 @@ object ModuleStructure {
         _domain_entity_core,
     }
 
-    private enum class LayerType {
+    /**
+     * モジュールの各レイヤーに特徴的な名前の種類
+     */
+    internal enum class LayerType {
         viewModel,
         gateway,
         service,
         entity
     }
-
-    private fun byLayerModuleList(layerType: LayerType): List<ModuleType> = ModuleType
-        .values().toList()
-        .filter { it.name.contains(layerType.name) }
 
     /**
      * 各モジュールがどのモジュールをインポートするのかを定義するスイッチ文
@@ -87,7 +76,7 @@ object ModuleStructure {
                 impl(ModuleType._domain_entity_core)
             }
             ModuleType._dataStore_gateway_server -> {
-                byLayerModuleList(LayerType.entity).forEach {
+                ModuleExtension.byLayerModuleList(LayerType.entity).forEach {
                     api(it)
                 }
             }

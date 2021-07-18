@@ -1,7 +1,24 @@
 import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.DependencyHandler
 
+/**
+ * 各build.gradle.ktsから呼び出す関数
+ */
+fun Project.moduleStructure() {
+    afterEvaluate {
+        ModuleExtension.findModuleType(this)
+            ?.let { ModuleStructure.implModuleByLayerType(this, it) }
+    }
+}
+
 object ModuleExtension {
+
+    /**
+     * モジュール一覧から特定のレイヤーのものだけをフィルタリングして返す関数
+     */
+    internal fun byLayerModuleList(layerType: ModuleStructure.LayerType): List<ModuleStructure.ModuleType> = ModuleStructure.ModuleType
+        .values().toList()
+        .filter { it.name.contains(layerType.name) }
 
     internal fun findModuleType(project: Project): ModuleStructure.ModuleType? {
         val projectName = convertEnumName(project)
