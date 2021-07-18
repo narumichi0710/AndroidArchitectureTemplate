@@ -15,7 +15,7 @@ class EntryViewModel(
 
     private val query = EntryQueryImpl(application, viewModelScope)
 
-    private val dependency = EntryService.Dependency(command, query)
+    private val dependency = EntryService.Dependency(null, command, query)
 
     override val service = EntryService(dependency)
 }

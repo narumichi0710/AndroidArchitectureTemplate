@@ -18,6 +18,7 @@ class EntryService(
     }
 
     data class Dependency(
+        override val navigator: Any?,
         override val command: Command,
         override val query: Query
     ) : BaseService.Dependency
