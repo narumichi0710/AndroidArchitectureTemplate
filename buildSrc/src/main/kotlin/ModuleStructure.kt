@@ -34,7 +34,6 @@ object ModuleStructure {
         _domain_entity_core,
     }
 
-    private fun entityModuleList(): List<ModuleType> = ModuleType
     private enum class LayerType {
         viewModel,
         gateway,
@@ -42,8 +41,9 @@ object ModuleStructure {
         entity
     }
 
+    private fun byLayerModuleList(layerType: LayerType): List<ModuleType> = ModuleType
         .values().toList()
-        .filter { it.name.contains("entity") }
+        .filter { it.name.contains(layerType.name) }
 
     /**
      * 各モジュールがどのモジュールをインポートするのかを定義するスイッチ文
@@ -87,7 +87,7 @@ object ModuleStructure {
                 impl(ModuleType._domain_entity_core)
             }
             ModuleType._dataStore_gateway_server -> {
-                entityModuleList().forEach {
+                byLayerModuleList(LayerType.entity).forEach {
                     api(it)
                 }
             }
