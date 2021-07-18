@@ -38,8 +38,8 @@ subprojects {
                 implementation "com.jakewharton.timber:timber:4.7.1"
                 implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.1"
 
-                switch (subProject.toString()) {
-                    case "project ':app'":
+                switch (subProject.getPath()) {
+                    case ":app":
                         implementation 'androidx.appcompat:appcompat:1.3.0'
                         implementation 'com.google.android.material:material:1.3.0'
                         implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
@@ -49,7 +49,7 @@ subprojects {
                         implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
                         break
 
-                    case "project ':presentation:viewModel:core'":
+                    case ":presentation:viewModel:core":
                         def lifecycle_version = "2.3.0"
                         api "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
                         api "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
