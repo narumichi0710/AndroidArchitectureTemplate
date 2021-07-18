@@ -35,6 +35,13 @@ object ModuleStructure {
     }
 
     private fun entityModuleList(): List<ModuleType> = ModuleType
+    private enum class LayerType {
+        viewModel,
+        gateway,
+        service,
+        entity
+    }
+
         .values().toList()
         .filter { it.name.contains("entity") }
 
