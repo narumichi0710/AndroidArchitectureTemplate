@@ -67,7 +67,7 @@ object SharedPreferenceController {
     }
 
 
-    fun <T> remove(
+    fun remove(
         sharedPreferences: SharedPreferences.Editor?,
         localDataKey: LocalDataKey<*>
     ) {
