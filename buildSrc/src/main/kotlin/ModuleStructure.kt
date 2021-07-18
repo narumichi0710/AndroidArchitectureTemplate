@@ -30,6 +30,10 @@ object ModuleStructure {
         _domain_entity_core,
     }
 
+    private fun entityModuleList(): List<ModuleType> = ModuleType
+        .values().toList()
+        .filter { it.name.contains("entity") }
+
     /**
      * 各モジュールがどのモジュールをインポートするのかを定義するスイッチ文
      * appモジュールは全モジュールをimplするようにしている
