@@ -8,5 +8,10 @@ interface LocalDataKey<T> {
     enum class Long : LocalDataKey<kotlin.Long>
     enum class Float : LocalDataKey<kotlin.Float>
     enum class Boolean : LocalDataKey<kotlin.Boolean>
-    enum class String : LocalDataKey<kotlin.String?>
+    enum class String : LocalDataKey<kotlin.String?> {
+        Password {
+            override val defaultValue: kotlin.String? = null
+            override fun key(): kotlin.String = name
+        }
+    }
 }
