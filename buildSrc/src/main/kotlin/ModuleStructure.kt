@@ -17,7 +17,6 @@ object ModuleStructure {
         _dataStore_repository,
         _dataStore_repository_auth,
         _dataStore_repository_core,
-        _dataStore_gateway,
         _dataStore_gateway_server,
         _dataStore_gateway_local,
         _dataStore_gateway_sdk,
@@ -115,11 +114,6 @@ object ModuleStructure {
                 api(ModuleType._domain_entity_core)
             }
             ModuleType._domain_entity_core -> {
-            }
-            ModuleType._dataStore_gateway -> {
-                api(ModuleType._dataStore_gateway_server)
-                api(ModuleType._dataStore_gateway_local)
-                api(ModuleType._dataStore_gateway_sdk)
             }
             ModuleType._dataStore_gateway_sdk -> {
             }
