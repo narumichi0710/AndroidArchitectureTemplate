@@ -14,6 +14,9 @@ object ModuleStructure {
         _app,
         _presentation_viewModel_auth,
         _presentation_viewModel_core,
+        _dataStore_repository,
+        _dataStore_repository_auth,
+        _dataStore_repository_core,
         _dataStore_gateway,
         _dataStore_gateway_server,
         _dataStore_gateway_local,
@@ -37,6 +40,15 @@ object ModuleStructure {
          * などを行う
          */
         viewModel,
+
+        /**
+         * データの実体インスタンスを保持・管理するクラスを置くモジュール
+         * gatewayモジュールの関数を順番/並列に叩く処理の管理も行う
+         * 基本的にクラス内にデータを保持するがドメイン(モジュール)をまたぐデータ型の場合は
+         * coreモジュールのシングルトン内にプロパティを作りその値をカスタムgetterで渡すようにする
+         * 共有するデータが多い(Like問題)ことが見込まれる場合はシングルトンではなくDBの採用を検討する
+         */
+        repository,
 
         /**
          * IO処理を記述するモジュール
@@ -79,6 +91,18 @@ object ModuleStructure {
             }
             ModuleType._presentation_viewModel_core -> {
                 api(ModuleType._domain_service_core)
+            }
+            ModuleType._dataStore_repository -> {
+                ModuleExtension.byLayerModuleList(LayerType.repository).forEach {
+                    if (it != ModuleType._dataStore_repository) api(it)
+                }
+            }
+            ModuleType._dataStore_repository_auth -> {
+                api(ModuleType._dataStore_repository_core)
+                impl(ModuleType._domain_service_auth)
+            }
+            ModuleType._dataStore_repository_core -> {
+                impl(ModuleType._dataStore_gateway_sdk)
             }
             ModuleType._domain_service_auth -> {
                 api(ModuleType._domain_service_core)
