@@ -9,7 +9,7 @@ buildscript {
     ext.hilt_version = "2.32-alpha"
     ext.retrofit_version = "2.9.0"
     ext.okhttp_version = '4.9.1'
-    ext.nav_version = "2.3.3"
+    ext.nav_version = "2.3.5"
     ext.live_data_version = "2.2.0"
     ext.coroutine_version = '1.4.2'
     ext.glide_version = "4.11.0"
