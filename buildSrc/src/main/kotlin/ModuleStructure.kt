@@ -99,10 +99,12 @@ object ModuleStructure {
             }
             ModuleType._dataStore_repository_auth -> {
                 api(ModuleType._dataStore_repository_core)
+                impl(ModuleType._dataStore_gateway_local)
                 impl(ModuleType._domain_service_auth)
             }
             ModuleType._dataStore_repository_core -> {
-                impl(ModuleType._dataStore_gateway_sdk)
+                impl(ModuleType._dataStore_gateway_local)
+                impl(ModuleType._domain_service_core)
             }
             ModuleType._domain_service_auth -> {
                 api(ModuleType._domain_service_core)
