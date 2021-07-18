@@ -10,7 +10,7 @@ class EntryService(
     override val dependency: Dependency
 ) : BaseService<EntryService.Dependency>  {
 
-    val passwordInput = MutableLiveData("").apply {
+    val loginIdInput = MutableLiveData("").apply {
         dependency.query.queryLocalCacheData(LocalDataKey.String.Password) {
             postValue(it)
         }
