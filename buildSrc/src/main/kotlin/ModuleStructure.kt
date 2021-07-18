@@ -24,6 +24,10 @@ object ModuleStructure {
         _app,
         _presentation_viewModel_auth,
         _presentation_viewModel_core,
+        _dataStore_gateway,
+        _dataStore_gateway_server,
+        _dataStore_gateway_local,
+        _dataStore_gateway_sdk,
         _domain_service_auth,
         _domain_service_core,
         _domain_entity_auth,
@@ -64,6 +68,21 @@ object ModuleStructure {
                 api(ModuleType._domain_entity_core)
             }
             ModuleType._domain_entity_core -> {
+            }
+            ModuleType._dataStore_gateway -> {
+                api(ModuleType._dataStore_gateway_server)
+                api(ModuleType._dataStore_gateway_local)
+                api(ModuleType._dataStore_gateway_sdk)
+            }
+            ModuleType._dataStore_gateway_sdk -> {
+            }
+            ModuleType._dataStore_gateway_local -> {
+                impl(ModuleType._domain_entity_core)
+            }
+            ModuleType._dataStore_gateway_server -> {
+                entityModuleList().forEach {
+                    api(it)
+                }
             }
         }
     }
