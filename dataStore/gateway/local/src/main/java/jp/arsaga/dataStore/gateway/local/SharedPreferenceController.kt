@@ -51,47 +51,18 @@ object SharedPreferenceController {
         ?.takeIf { it.contains(key) }
 
 
-    fun put(
+    fun <T>put(
         sharedPreferences: SharedPreferences.Editor?,
-        localDataKey: LocalDataKey.Int,
-        value: Int
+        localDataKey: LocalDataKey<T>,
+        value: T
     ) {
-        sharedPreferences?.putInt(localDataKey.key(), value)
-        putLog(localDataKey, value)
-    }
-    fun put(
-        sharedPreferences: SharedPreferences.Editor?,
-        localDataKey: LocalDataKey.Long,
-        value: Long
-    ) {
-        sharedPreferences?.putLong(localDataKey.key(), value)
-        putLog(localDataKey, value)
-    }
-    fun put(
-        sharedPreferences: SharedPreferences.Editor?,
-        localDataKey: LocalDataKey.Float,
-        value: Float
-    ) {
-        sharedPreferences?.putFloat(localDataKey.key(), value)
-        putLog(localDataKey, value)
-    }
-    fun put(
-        sharedPreferences: SharedPreferences.Editor?,
-        localDataKey: LocalDataKey.Boolean,
-        value: Boolean
-    ) {
-        sharedPreferences?.putBoolean(localDataKey.key(), value)
-        putLog(localDataKey, value)
-    }
-    fun put(
-        sharedPreferences: SharedPreferences.Editor?,
-        localDataKey: LocalDataKey.String,
-        value: String?
-    ) {
-        sharedPreferences?.putString(localDataKey.key(), value)
-        putLog(localDataKey, value)
-    }
-    private fun putLog(localDataKey: LocalDataKey<*>, value: Any?) {
+        when (value) {
+            is Int -> sharedPreferences?.putInt(localDataKey.key(), value)
+            is Long -> sharedPreferences?.putLong(localDataKey.key(), value)
+            is Float -> sharedPreferences?.putFloat(localDataKey.key(), value)
+            is Boolean -> sharedPreferences?.putBoolean(localDataKey.key(), value)
+            is String? -> sharedPreferences?.putString(localDataKey.key(), value)
+        }
         Timber.d("putLocalPref:${localDataKey.key()}：$value")
     }
 
