@@ -1,6 +1,17 @@
-import ModuleExtension.api
-import ModuleExtension.impl
+import script.ModuleExtension.api
+import script.ModuleExtension.impl
+import script.ModuleExtension
 import org.gradle.api.Project
+
+/**
+ * 各build.gradle.ktsから呼び出す関数
+ */
+fun Project.moduleStructure() {
+    afterEvaluate {
+        ModuleExtension.findModuleType(this)
+            ?.let { ModuleStructure.implModuleByLayerType(this, it) }
+    }
+}
 
 object ModuleStructure {
 

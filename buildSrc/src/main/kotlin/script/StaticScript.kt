@@ -1,3 +1,6 @@
+package script
+
+import ProjectProperty
 import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.internal.dsl.BaseFlavor
 import com.android.build.gradle.internal.dsl.DefaultConfig

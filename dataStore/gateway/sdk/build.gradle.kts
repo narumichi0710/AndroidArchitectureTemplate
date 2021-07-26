@@ -1,5 +1,5 @@
 android {
-    StaticScript.baseExtension(this)
+    script.StaticScript.baseExtension(this)
 }
 
 plugins {

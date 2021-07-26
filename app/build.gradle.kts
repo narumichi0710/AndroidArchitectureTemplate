@@ -3,7 +3,7 @@ android {
         setCompileSdkVersion(30)
         setApplicationId(ProjectProperty.APPLICATION_ID)
     }
-    StaticScript.baseExtension(this, true)
+    script.StaticScript.baseExtension(this, true)
 }
 
 plugins {
