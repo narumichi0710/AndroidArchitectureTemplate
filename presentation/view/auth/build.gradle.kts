@@ -5,6 +5,7 @@ android {
 plugins {
     id("com.android.library")
     kotlin("android")
+    id("androidx.navigation.safeargs.kotlin")
 }
 
 moduleStructure()
