@@ -1,0 +1,12 @@
+[submodule "extension/view"]
+	path = extension/view
+	url = https://github.com/arsaga-partners/AndroidViewExtensions.git
+[submodule "extension/viewModel"]
+	path = extension/viewModel
+	url = https://github.com/arsaga-partners/AndroidViewModelExtensions.git
+[submodule "extension/gateway"]
+	path = extension/gateway
+	url = https://github.com/arsaga-partners/AndroidGatewayExtensions.git
+[submodule "extension/repository"]
+	path = extension/repository
+	url = https://github.com/arsaga-partners/AndroidRepositoryExtensions.git
