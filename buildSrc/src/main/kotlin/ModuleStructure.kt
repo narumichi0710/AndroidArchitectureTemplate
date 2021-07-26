@@ -37,6 +37,10 @@ object ModuleStructure {
         _domain_service_core,
         _domain_entity_auth,
         _domain_entity_core,
+        _extension_view,
+        _extension_viewModel,
+        _extension_repository,
+        _extension_gateway,
     }
 
     /**
@@ -103,6 +107,7 @@ object ModuleStructure {
             }
             ModuleType._presentation_view_core -> {
                 api(ModuleType._presentation_viewModel_core)
+                api(ModuleType._extension_view)
             }
             ModuleType._presentation_viewModel_auth -> {
                 api(ModuleType._presentation_viewModel_core)
@@ -111,6 +116,7 @@ object ModuleStructure {
             }
             ModuleType._presentation_viewModel_core -> {
                 api(ModuleType._domain_service_core)
+                api(ModuleType._extension_viewModel)
             }
             ModuleType._dataStore_repository -> {
                 ModuleExtension.byLayerModuleList(LayerType.repository).forEach {
@@ -125,6 +131,7 @@ object ModuleStructure {
             ModuleType._dataStore_repository_core -> {
                 impl(ModuleType._dataStore_gateway_local)
                 impl(ModuleType._domain_service_core)
+                api(ModuleType._extension_repository)
             }
             ModuleType._domain_service_auth -> {
                 api(ModuleType._domain_service_core)
@@ -136,17 +143,22 @@ object ModuleStructure {
             ModuleType._domain_entity_auth -> {
                 api(ModuleType._domain_entity_core)
             }
-            ModuleType._domain_entity_core -> {
-            }
             ModuleType._dataStore_gateway_sdk -> {
             }
             ModuleType._dataStore_gateway_local -> {
                 impl(ModuleType._domain_entity_core)
             }
             ModuleType._dataStore_gateway_server -> {
+                impl(ModuleType._extension_gateway)
                 ModuleExtension.byLayerModuleList(LayerType.entity).forEach {
                     api(it)
                 }
+            }
+            ModuleType._domain_entity_core,
+            ModuleType._extension_view,
+            ModuleType._extension_viewModel,
+            ModuleType._extension_repository,
+            ModuleType._extension_gateway -> {
             }
         }
     }

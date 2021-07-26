@@ -15,8 +15,13 @@ buildscript {
     ext.timber_version = "4.7.1"
     ext.appcompat_version = "1.3.0"
     ext.material_version = "1.4.0"
+    ext.viewpager2_version = "1.0.0"
+    ext.recyclerview_version = "1.2.1"
     ext.constraintlayout_version = "2.0.4"
     ext.security_version = "1.0.0"
+    ext.glide_version = "4.11.0"
+    ext.retrofit_version = "2.9.0"
+    ext.okhttp_version = '4.9.0'
 
     repositories {
         mavenCentral()
@@ -48,10 +53,16 @@ subprojects {
                         break
 
                     case ":presentation:view:core":
-                        api "androidx.appcompat:appcompat:$appcompat_version"
-                        api "com.google.android.material:material:$material_version"
                         api "androidx.constraintlayout:constraintlayout:$constraintlayout_version"
-                        api "androidx.navigation:navigation-fragment-ktx:$nav_version"
+                        break
+
+                    case ":extension:view":
+                        api project(':extension:viewModel')
+                        api "androidx.appcompat:appcompat:$appcompat_version"
+                        kapt "com.github.bumptech.glide:compiler:$glide_version"
+                        api "com.github.bumptech.glide:glide:$glide_version"
+                        api "androidx.viewpager2:viewpager2:$viewpager2_version"
+                        api "com.google.android.material:material:$material_version"
                         api "androidx.navigation:navigation-ui-ktx:$nav_version"
                         break
 
@@ -60,12 +71,28 @@ subprojects {
                         api "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
                         break
 
+                    case ":extension:viewModel":
+                        dependencies {
+                            api "androidx.recyclerview:recyclerview:$recyclerview_version"
+                            api "androidx.navigation:navigation-fragment-ktx:$nav_version"
+                        }
+                        break
+
                     case ":dataStore:repository:core":
                         implementation "androidx.security:security-crypto:$security_version"
                         break
 
                     case ":domain:service:core":
                         api "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
+                        break
+
+                    case ":extension:gateway":
+                        dependencies {
+                            implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
+                            implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
+                            implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
+                            implementation "com.squareup.okhttp3:logging-interceptor:$okhttp_version"
+                        }
                         break
                 }
             }
