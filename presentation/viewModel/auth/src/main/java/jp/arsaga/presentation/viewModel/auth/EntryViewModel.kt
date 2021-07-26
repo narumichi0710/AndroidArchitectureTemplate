@@ -8,14 +8,15 @@ import jp.arsaga.domain.service.auth.EntryService
 import jp.arsaga.presentation.viewModel.core.extension.BaseViewModel
 
 class EntryViewModel(
-    application: Application
+    application: Application,
+    navigator: EntryService.Navigator
 ) : BaseViewModel<EntryService.Dependency>(application) {
 
     private val command = EntryCommandImpl(application, viewModelScope)
 
     private val query = EntryQueryImpl(application, viewModelScope)
 
-    private val dependency = EntryService.Dependency(null, command, query)
+    private val dependency = EntryService.Dependency(navigator, command, query)
 
     override val service = EntryService(dependency)
 }

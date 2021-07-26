@@ -23,7 +23,9 @@ class EntryCommandImpl(
             .apply(reactiveLocalDataSaver::add)
     }
 
-    override fun login() {
+    override fun login(onSuccess: () -> Unit) {
+        Thread.sleep(1500L)
+        onSuccess()
     }
 
     override fun register() {

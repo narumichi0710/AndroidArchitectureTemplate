@@ -29,8 +29,18 @@
             android:id="@+id/loginIdInput"
             android:layout_width="match_parent"
             android:layout_height="56dp"
+            android:layout_marginBottom="96dp"
             android:text="@={viewModel.service.loginIdInput}"
-            android:layout_marginBottom="24dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <Button
+            binding_onOnceClick="@{() -> viewModel.service.login()}"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:text="ログイン"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />

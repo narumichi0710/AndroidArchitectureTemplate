@@ -17,14 +17,24 @@ class EntryService(
         dependency.command.saveLocalCacheData(asFlow(), LocalDataKey.String.Password)
     }
 
+    fun login() {
+        dependency.command.login {
+            dependency.navigator.successLogin()
+        }
+    }
+
     data class Dependency(
-        override val navigator: Any?,
+        override val navigator: Navigator,
         override val command: Command,
         override val query: Query
     ) : BaseService.Dependency
 
+    interface Navigator {
+        fun successLogin()
+    }
+
     interface Command {
-        fun login()
+        fun login(onSuccess: () -> Unit)
         fun register()
         fun saveLocalCacheData(flow: Flow<String?>, localDataKey: LocalDataKey<String?>)
     }

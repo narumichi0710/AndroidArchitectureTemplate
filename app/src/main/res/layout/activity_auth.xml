@@ -5,10 +5,6 @@
 
     <data>
 
-        <variable
-            name="viewModel"
-            type="jp.arsaga.presentation.viewModel.auth.EntryViewModel" />
-
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
