@@ -23,6 +23,8 @@ object ModuleStructure {
      */
     internal enum class ModuleType {
         _app,
+        _presentation_view_auth,
+        _presentation_view_core,
         _presentation_viewModel_auth,
         _presentation_viewModel_core,
         _dataStore_repository,
@@ -94,6 +96,13 @@ object ModuleStructure {
         when (moduleType) {
             ModuleType._app -> ModuleExtension.implAllModule(ModuleType._app) {
                 impl(it)
+            }
+            ModuleType._presentation_view_auth -> {
+                impl(ModuleType._presentation_view_core)
+                impl(ModuleType._presentation_viewModel_auth)
+            }
+            ModuleType._presentation_view_core -> {
+                api(ModuleType._presentation_viewModel_core)
             }
             ModuleType._presentation_viewModel_auth -> {
                 api(ModuleType._presentation_viewModel_core)
