@@ -1,6 +1,7 @@
 package jp.arsaga.app
 
 import android.app.Application
+import jp.arsaga.presentation.view.core.container.NavControllerContainer
 import timber.log.Timber
 
 class App : Application() {
@@ -9,7 +10,14 @@ class App : Application() {
         super.onCreate()
         saveSingleton()
         if (BuildConfig.IS_DEBUG_LOGGING) initLogging()
+        lifecycleCallbacksList.forEach {
+            registerActivityLifecycleCallbacks(it)
+        }
     }
+
+    private val lifecycleCallbacksList = listOf(
+        NavControllerContainer
+    )
 
     private fun saveSingleton() {
         listOf<Any>(
