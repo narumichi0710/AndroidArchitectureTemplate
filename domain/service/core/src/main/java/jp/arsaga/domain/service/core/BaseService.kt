@@ -1,5 +1,7 @@
 package jp.arsaga.domain.service.core
 
+import android.app.Activity
+
 /**
  * Serviceクラス(ロジックを表現するクラス)を共通化して使うための最低限のinterface
  */
@@ -35,3 +37,9 @@ interface BaseService<Dependency> {
         val query: Any?
     }
 }
+
+/**
+ * 画面遷移アクションの基本型
+ * Serviceレイヤーでは使わず呼び出し側で使う
+ */
+typealias NavigationCallback = (Activity) -> Unit

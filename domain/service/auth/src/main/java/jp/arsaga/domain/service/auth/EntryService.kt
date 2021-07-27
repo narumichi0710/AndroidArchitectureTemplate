@@ -6,9 +6,9 @@ import jp.arsaga.domain.entity.core.type.LocalDataKey
 import jp.arsaga.domain.service.core.BaseService
 import kotlinx.coroutines.flow.Flow
 
-class EntryService(
-    override val dependency: Dependency
-) : BaseService<EntryService.Dependency>  {
+class EntryService<NavCallback>(
+    override val dependency: Dependency<NavCallback>
+) : BaseService<EntryService.Dependency<NavCallback>>  {
 
     val loginIdInput = MutableLiveData("").apply {
         dependency.query.queryLocalCacheData(LocalDataKey.String.Password) {
@@ -19,23 +19,23 @@ class EntryService(
 
     fun login() {
         dependency.command.login {
-            dependency.navigator.successLogin()
+            dependency.navigator.successLogin
         }
     }
 
-    data class Dependency(
-        override val navigator: Navigator,
-        override val command: Command,
+    data class Dependency<NavCallback>(
+        override val navigator: Navigator<NavCallback>,
+        override val command: Command<NavCallback>,
         override val query: Query
     ) : BaseService.Dependency
 
-    interface Navigator {
-        fun successLogin()
+    interface Navigator<NavCallback> {
+        val successLogin: NavCallback
     }
 
-    interface Command {
-        fun login(onSuccess: () -> Unit)
-        fun register()
+    interface Command<NavCallback> {
+        fun login(onSuccess: () -> NavCallback)
+        fun register(onSuccess: () -> NavCallback)
         fun saveLocalCacheData(flow: Flow<String?>, localDataKey: LocalDataKey<String?>)
     }
 
