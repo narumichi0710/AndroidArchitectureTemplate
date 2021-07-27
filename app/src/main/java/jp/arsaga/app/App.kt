@@ -3,6 +3,7 @@ package jp.arsaga.app
 import android.app.Application
 import jp.arsaga.app.lifecycleCallback.ProgressLoadingHandler
 import jp.arsaga.presentation.view.core.container.NavControllerContainer
+import jp.arsaga.dataStore.repository.core.TransitionCallbackHandler
 import timber.log.Timber
 
 class App : Application() {
@@ -18,7 +19,8 @@ class App : Application() {
 
     private val lifecycleCallbacksList = listOf(
         NavControllerContainer,
-        ProgressLoadingHandler
+        ProgressLoadingHandler,
+        TransitionCallbackHandler
     )
 
     private fun saveSingleton() {

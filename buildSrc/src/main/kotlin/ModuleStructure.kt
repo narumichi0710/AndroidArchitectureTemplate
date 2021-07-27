@@ -132,6 +132,7 @@ object ModuleStructure {
                 impl(ModuleType._dataStore_gateway_local)
                 impl(ModuleType._domain_service_core)
                 api(ModuleType._extension_repository)
+                api(ModuleType._extension_gateway)
             }
             ModuleType._domain_service_auth -> {
                 api(ModuleType._domain_service_core)
