@@ -13,12 +13,11 @@ class EntryViewModel(
     application: Application,
     navigator: Navigator<NavigationCallback>
 ) : BaseViewModel<Dependency<NavigationCallback>>(application) {
-
-    private val command = EntryCommandImpl(application, viewModelScope)
-
-    private val query = EntryQueryImpl(application, viewModelScope)
-
-    private val dependency = Dependency(navigator, command, query)
-
-    override val service = EntryService(dependency)
+    override val service = EntryService(
+        Dependency(
+            navigator,
+            EntryCommandImpl(application, viewModelScope),
+            EntryQueryImpl(application, viewModelScope)
+        )
+    )
 }
