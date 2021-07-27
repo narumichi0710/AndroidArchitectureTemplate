@@ -42,4 +42,4 @@ interface BaseService<Dependency> {
  * 画面遷移アクションの基本型
  * Serviceレイヤーでは使わず呼び出し側で使う
  */
-typealias NavigationCallback = (Activity) -> Unit
+typealias ActivityCallback = (Activity) -> Unit

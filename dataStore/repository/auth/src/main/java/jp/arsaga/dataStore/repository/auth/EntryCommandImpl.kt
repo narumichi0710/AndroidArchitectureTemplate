@@ -7,14 +7,14 @@ import jp.arsaga.dataStore.repository.core.EncryptedSharedPreferencesStore.Compa
 import jp.arsaga.dataStore.repository.core.TransitionCallbackHandler
 import jp.arsaga.domain.entity.core.type.LocalDataKey
 import jp.arsaga.domain.service.auth.EntryService
-import jp.arsaga.domain.service.core.NavigationCallback
+import jp.arsaga.domain.service.core.ActivityCallback
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 
 class EntryCommandImpl(
     private val context: Context,
     private val coroutineScope: CoroutineScope
-) : EntryService.Command<NavigationCallback> {
+) : EntryService.Command<ActivityCallback> {
 
     private val reactiveLocalDataSaver = mutableSetOf<ReactiveLocalDataSaver<*>>()
 
@@ -25,12 +25,12 @@ class EntryCommandImpl(
             .apply(reactiveLocalDataSaver::add)
     }
 
-    override fun login(onSuccess: () -> NavigationCallback) {
+    override fun login(onSuccess: () -> ActivityCallback) {
         Thread.sleep(1500L)
         TransitionCallbackHandler.post(onSuccess())
     }
 
-    override fun register(onSuccess: () -> NavigationCallback) {
+    override fun register(onSuccess: () -> ActivityCallback) {
     }
 
 }
