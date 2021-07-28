@@ -1,5 +1,4 @@
-# AndroidArchitectureTemplate
-Androidで新規開発する際のプロジェクトテンプレート
+# アーキテクチャ構成図
 
 ![Diagram](document/ArchitectureDiagram.png)
 
@@ -11,3 +10,6 @@ Androidで新規開発する際のプロジェクトテンプレート
 ## ドメイン一覧
 - core => ドメイン間で共通で使うコードを書く
 - auth => 認証に関するロジックを書く
+
+## 関連ドキュメントへのリンク一覧
+
