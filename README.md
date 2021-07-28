@@ -2,6 +2,10 @@
 
 ![Diagram](document/ArchitectureDiagram.png)
 
+## 管理方法
+- 新しいライブラリが出るとDependabotがプルリクエストを作ってくれる
+- 社内Slackチャンネルの[android_template_notification]に通知が行くのでマージ処理を行う
+
 ## 使い方
 1. Github上でこのレポジトリを複製する
 2. プロジェクト設定の値を修正する => (https://github.com/arsaga-partners/AndroidArchitectureTemplate/blob/develop/buildSrc/src/main/kotlin/ProjectProperty.kt)
