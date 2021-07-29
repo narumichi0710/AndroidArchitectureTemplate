@@ -4,8 +4,9 @@ import ProjectProperty
 import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.internal.dsl.BaseFlavor
 import com.android.build.gradle.internal.dsl.DefaultConfig
-import org.gradle.api.JavaVersion
-import org.gradle.api.Project
+import com.android.build.gradle.internal.dsl.BuildType
+import com.android.build.gradle.internal.dsl.ProductFlavor
+import org.gradle.api.*
 import java.io.File
 import java.util.*
 
@@ -27,54 +28,37 @@ object StaticScript {
     /**
      * 各モジュール共通のdefaultConfigを設定
      */
-    private fun defaultConfig(defaultConfig: DefaultConfig) =
+    private fun defaultConfig(defaultConfig: DefaultConfig) {
         defaultConfig.apply {
             minSdkVersion(ProjectProperty.MIN_SDK_VERSION)
             multiDexEnabled = true
             testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
             vectorDrawables.useSupportLibrary = true
         }
+    }
 
     /**
      * 各モジュールの共通ビルド設定
      */
-    private fun commonBaseExtension(baseExtension: BaseExtension, isRoot: Boolean, project: Project?) =
-        baseExtension.apply {
-            releaseBuildSetting(baseExtension, isRoot)
-            buildFlavor(this, isRoot, project)
-            packagingOptions {
-                exclude("META-INF/*.kotlin_module")
-            }
-            compileOptions {
-                sourceCompatibility = JavaVersion.VERSION_1_8
-                targetCompatibility = JavaVersion.VERSION_1_8
-            }
+    private fun commonBaseExtension(
+        baseExtension: BaseExtension,
+        isRoot: Boolean,
+        project: Project?
+    ) = baseExtension.apply {
+        parameterizeBuildFlavorSetting(this, isRoot, project)
+        packagingOptions {
+            exclude("META-INF/*.kotlin_module")
         }
-
-    /**
-     * リリースビルド限定の設定を呼び出す
-     */
-    private fun releaseBuildSetting(baseExtension: BaseExtension, isRoot: Boolean) =
-        baseExtension.apply {
-            buildTypes {
-                getByName("release") {
-                    if (isRoot) {
-                        isShrinkResources = true
-                    }
-                    isMinifyEnabled = true
-                    isUseProguard = true
-                    proguardFiles(
-                        getDefaultProguardFile("proguard-android.txt"),
-                        "proguard-rules.pro"
-                    )
-                }
-            }
+        compileOptions {
+            sourceCompatibility = JavaVersion.VERSION_1_8
+            targetCompatibility = JavaVersion.VERSION_1_8
         }
+    }
 
     /**
      * ProductFlavorとBuildTypeごとの設定処理を呼び出す
      */
-    private fun buildFlavor(
+    private fun parameterizeBuildFlavorSetting(
         baseExtension: BaseExtension,
         isRoot: Boolean,
         project: Project?
@@ -85,30 +69,76 @@ object StaticScript {
                 create(flavorType.name) {
                     buildTypes {
                         ProjectProperty.BuildTypeType.values().forEach { buildTypeType ->
-                            if (buildTypeType in defaultExistBuildType) getByName(buildTypeType.name) {
-                                buildTypeType.action(this, flavorType)
-                            }
-                            else create(buildTypeType.name) {
-                                buildTypeType.action(this, flavorType)
-                            }
-                            setBuildConfig(this@create, flavorType, buildTypeType)
-                            setManifestPlaceHolder(baseExtension, flavorType, buildTypeType)
-                            if (
-                                isRoot && project != null &&
-                                flavorType == ProjectProperty.FlavorType.prod &&
-                                buildTypeType == ProjectProperty.BuildTypeType.release
-                            ) {
-                                setSigningConfigs(this@apply, project)
-                                signingConfig = signingConfigs.getAt(SIGNING_KEY)
-                            }
+                            executeBuildType(isRoot, baseExtension, this, flavorType, buildTypeType)
+                            executeBuildConfig(this@create, flavorType, buildTypeType)
+                            executeManifestPlaceHolder(baseExtension, flavorType, buildTypeType)
+                            executeSigningConfigs(
+                                isRoot,
+                                baseExtension,
+                                project,
+                                this@create,
+                                flavorType,
+                                buildTypeType
+                            )
                         }
-                    }
-                    if (isRoot && flavorType != ProjectProperty.FlavorType.prod) {
-                        applicationIdSuffix = flavorType.name
                     }
                 }
             }
         }
+    }
+
+    /**
+     * gradle.ktsのBuildTypeの仕様として
+     * すでに存在するもの(release, debug)は取得、
+     * 自分で新たに作ったものは新規作成となっているので
+     * その条件分岐を判定するためのリスト
+     */
+    private val defaultExistBuildType = listOf(
+        ProjectProperty.BuildTypeType.release,
+        ProjectProperty.BuildTypeType.debug
+    )
+
+    /**
+     * BuildTypeに応じた設定
+     */
+    private fun executeBuildType(
+        isRoot: Boolean,
+        baseExtension: BaseExtension,
+        objectContainer: NamedDomainObjectContainer<BuildType>,
+        flavorType: ProjectProperty.FlavorType,
+        buildTypeType: ProjectProperty.BuildTypeType
+    ) = objectContainer.apply {
+        Action<BuildType> {
+            buildTypeType.action(this, flavorType)
+            if (buildTypeType == ProjectProperty.BuildTypeType.release) {
+                releaseBuildSetting(isRoot, baseExtension, this)
+            }
+            if (isRoot && flavorType != ProjectProperty.FlavorType.prod) {
+                applicationIdSuffix = flavorType.name
+            }
+        }.let {
+            if (buildTypeType in defaultExistBuildType) getByName(buildTypeType.name, it)
+            else create(buildTypeType.name, it)
+        }
+    }
+
+    /**
+     * リリースビルドに対する設定
+     */
+    private fun releaseBuildSetting(
+        isRoot: Boolean,
+        baseExtension: BaseExtension,
+        buildType: BuildType
+    ) = buildType.apply {
+        if (isRoot) {
+            isShrinkResources = true
+        }
+        isMinifyEnabled = true
+        isUseProguard = true
+        proguardFiles(
+            baseExtension.getDefaultProguardFile("proguard-android.txt"),
+            "proguard-rules.pro"
+        )
     }
 
     private const val SIGNING_KEY = "release"
@@ -118,15 +148,35 @@ object StaticScript {
      * パスワードは環境変数から取得し、KeystoreはBase64エンコードされた文字列をCIのシークレットに保存し、
      * ビルドのたびにデコードしてファイル化するようにする。
      */
-    private fun setSigningConfigs(baseExtension: BaseExtension, project: Project) {
-        baseExtension.signingConfigs {
+    private fun executeSigningConfigs(
+        isRoot: Boolean,
+        baseExtension: BaseExtension,
+        project: Project?,
+        productFlavor: ProductFlavor,
+        flavorType: ProjectProperty.FlavorType,
+        buildTypeType: ProjectProperty.BuildTypeType
+    ) {
+        if (
+            isRoot && project != null &&
+            flavorType == ProjectProperty.FlavorType.prod &&
+            buildTypeType == ProjectProperty.BuildTypeType.release
+        ) baseExtension.signingConfigs {
             create(SIGNING_KEY) {
                 keyAlias = SIGNING_KEY
-                keyPassword = getConfigValue(project, ProjectProperty.BuildVariantType.ANDROID_KEY_PASSWORD.name)
-                storePassword = getConfigValue(project, ProjectProperty.BuildVariantType.ANDROID_STORE_PASSWORD.name)
-                storeFile = getConfigValue(project, ProjectProperty.BuildVariantType.ANDROID_KEYSTORE_FILE_PATH.name)
-                    ?.let { File(it) }
+                keyPassword = getConfigValue(
+                    project,
+                    ProjectProperty.BuildVariantType.ANDROID_KEY_PASSWORD.name
+                )
+                storePassword = getConfigValue(
+                    project,
+                    ProjectProperty.BuildVariantType.ANDROID_STORE_PASSWORD.name
+                )
+                storeFile = getConfigValue(
+                    project,
+                    ProjectProperty.BuildVariantType.ANDROID_KEYSTORE_FILE_PATH.name
+                )?.let { File(it) }
             }
+            productFlavor.signingConfig = baseExtension.signingConfigs.getAt(SIGNING_KEY)
         }
     }
 
@@ -141,20 +191,9 @@ object StaticScript {
         .getOrNull()
 
     /**
-     * gradle.ktsのBuildTypeの仕様として
-     * すでに存在するもの(release, debug)は取得、
-     * 自分で新たに作ったものは新規作成となっているので
-     * その条件分岐を判定するためのリスト
-     */
-    private val defaultExistBuildType = listOf(
-        ProjectProperty.BuildTypeType.release,
-        ProjectProperty.BuildTypeType.debug
-    )
-
-    /**
      * ManifestPlaceHolderTypeからManifestPlaceHolderに値を設定する
      */
-    private fun setManifestPlaceHolder(
+    private fun executeManifestPlaceHolder(
         baseExtension: BaseExtension,
         flavorType: ProjectProperty.FlavorType,
         buildTypeType: ProjectProperty.BuildTypeType
@@ -167,7 +206,7 @@ object StaticScript {
     /**
      * BuildConfigTypeからBuildConfig設定処理を呼び出す
      */
-    private fun setBuildConfig(
+    private fun executeBuildConfig(
         baseFlavor: BaseFlavor,
         flavorType: ProjectProperty.FlavorType,
         buildTypeType: ProjectProperty.BuildTypeType
