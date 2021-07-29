@@ -61,6 +61,7 @@ object ModuleStructure {
          * 依存関係にまつわる主な処理はServiceにあるNavigatorを継承したクラスの作成、
          * ViewModelのコンストラクタに渡すことと、ViewModelに作ったViewEventのListenerとViewを紐づけること
          * 他の依存はデータバインディングで解決していく
+         * ForegroundServiceもここで作成していく
          */
         view,
 
@@ -80,6 +81,7 @@ object ModuleStructure {
          * 基本的にクラス内にデータを保持するがドメイン(モジュール)をまたぐデータ型の場合は
          * coreモジュールのシングルトン内にプロパティを作りその値をカスタムgetterで渡すようにする
          * 共有するデータが多い(Like問題)ことが見込まれる場合はシングルトンではなくDBの採用を検討する
+         * WorkManagerやServiceのクラスもここで作成する
          */
         repository,
 
