@@ -2,14 +2,26 @@ import com.android.build.gradle.internal.dsl.BuildType
 
 object ProjectProperty {
 
+    /**
+     * アプリのリリースなどで使うID
+     */
     const val APPLICATION_ID = "com.example.app"
 
+    /**
+     * このアプリの最低動作保証SDKバージョン
+     */
     const val MIN_SDK_VERSION = 23
 
+    /**
+     * CIやgradle.propertiesからのビルド環境変数名のタイプ一覧
+     */
     internal enum class BuildVariantType {
         ANDROID_KEY_PASSWORD, ANDROID_STORE_PASSWORD, ANDROID_KEYSTORE_FILE_PATH
     }
 
+    /**
+     * FlavorType一覧
+     */
     internal enum class FlavorType {
         prod, stg, dev
     }
@@ -24,6 +36,9 @@ object ProjectProperty {
         release({ _, _ -> })
     }
 
+    /**
+     * ManifestPlaceHolderに置く値の一覧
+     */
     internal enum class ManifestPlaceHolderType(val value: (FlavorType, BuildTypeType) -> String) {
         appName({ flavorType, _ ->
             if (flavorType == FlavorType.prod) {

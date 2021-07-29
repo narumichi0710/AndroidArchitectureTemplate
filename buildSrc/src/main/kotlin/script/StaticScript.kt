@@ -24,6 +24,9 @@ object StaticScript {
         commonBaseExtension(baseExtension, isRoot, project)
     }
 
+    /**
+     * 各モジュール共通のdefaultConfigを設定
+     */
     private fun defaultConfig(defaultConfig: DefaultConfig) =
         defaultConfig.apply {
             minSdkVersion(ProjectProperty.MIN_SDK_VERSION)
@@ -32,8 +35,12 @@ object StaticScript {
             vectorDrawables.useSupportLibrary = true
         }
 
+    /**
+     * 各モジュールの共通ビルド設定
+     */
     private fun commonBaseExtension(baseExtension: BaseExtension, isRoot: Boolean, project: Project?) =
         baseExtension.apply {
+            releaseBuildSetting(baseExtension, isRoot)
             buildFlavor(this, isRoot, project)
             packagingOptions {
                 exclude("META-INF/*.kotlin_module")
@@ -44,12 +51,9 @@ object StaticScript {
             }
         }
 
-    private fun buildFlavor(baseExtension: BaseExtension, isRoot: Boolean, project: Project?) = baseExtension.apply {
-        flavorDimensions("environment")
-        releaseBuildSetting(baseExtension, isRoot)
-        productBuildSetting(baseExtension, isRoot, project)
-    }
-
+    /**
+     * リリースビルド限定の設定を呼び出す
+     */
     private fun releaseBuildSetting(baseExtension: BaseExtension, isRoot: Boolean) =
         baseExtension.apply {
             buildTypes {
@@ -67,11 +71,15 @@ object StaticScript {
             }
         }
 
-    private fun productBuildSetting(
+    /**
+     * ProductFlavorとBuildTypeごとの設定処理を呼び出す
+     */
+    private fun buildFlavor(
         baseExtension: BaseExtension,
         isRoot: Boolean,
         project: Project?
     ) = baseExtension.apply {
+        flavorDimensions("environment")
         productFlavors {
             ProjectProperty.FlavorType.values().forEach { flavorType ->
                 create(flavorType.name) {
@@ -143,6 +151,22 @@ object StaticScript {
         ProjectProperty.BuildTypeType.debug
     )
 
+    /**
+     * ManifestPlaceHolderTypeからManifestPlaceHolderに値を設定する
+     */
+    private fun setManifestPlaceHolder(
+        baseExtension: BaseExtension,
+        flavorType: ProjectProperty.FlavorType,
+        buildTypeType: ProjectProperty.BuildTypeType
+    ) {
+        ProjectProperty.ManifestPlaceHolderType.values()
+            .map { it.name to it.value(flavorType, buildTypeType) }
+            .let { baseExtension.defaultConfig.addManifestPlaceholders(it.toMap()) }
+    }
+
+    /**
+     * BuildConfigTypeからBuildConfig設定処理を呼び出す
+     */
     private fun setBuildConfig(
         baseFlavor: BaseFlavor,
         flavorType: ProjectProperty.FlavorType,
@@ -159,16 +183,9 @@ object StaticScript {
         }
     }
 
-    private fun setManifestPlaceHolder(
-        baseExtension: BaseExtension,
-        flavorType: ProjectProperty.FlavorType,
-        buildTypeType: ProjectProperty.BuildTypeType
-    ) {
-        ProjectProperty.ManifestPlaceHolderType.values()
-            .map { it.name to it.value(flavorType, buildTypeType) }
-            .let { baseExtension.defaultConfig.addManifestPlaceholders(it.toMap()) }
-    }
-
+    /**
+     * BuildConfigの型をenumから特定する処理
+     */
     private fun getBuildConfigTypeFullPath(
         buildConfigType: ProjectProperty.IBuildConfigType
     ): String? = when (buildConfigType) {
