@@ -63,15 +63,15 @@ object ModuleExtension {
         ModuleStructure.LayerType.view ->
             listOf(
                 ModuleStructure.LayerType.viewModel,
-                ModuleStructure.LayerType.service
+                ModuleStructure.LayerType.useCase
             )
         ModuleStructure.LayerType.viewModel ->
             listOf(
                 ModuleStructure.LayerType.repository,
-                ModuleStructure.LayerType.service
+                ModuleStructure.LayerType.useCase
             )
         ModuleStructure.LayerType.repository ->
-            listOf(ModuleStructure.LayerType.service)
+            listOf(ModuleStructure.LayerType.useCase)
         else -> listOf()
     }
 

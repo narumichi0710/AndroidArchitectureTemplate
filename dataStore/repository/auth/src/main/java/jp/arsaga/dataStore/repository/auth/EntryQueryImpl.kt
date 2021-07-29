@@ -5,7 +5,7 @@ import jp.arsaga.dataStore.gateway.local.SharedPreferenceController
 import jp.arsaga.dataStore.repository.core.EncryptedSharedPreferencesStore
 import jp.arsaga.dataStore.repository.core.EncryptedSharedPreferencesStore.Companion.getSharedPreferences
 import jp.arsaga.domain.entity.core.type.LocalDataKey
-import jp.arsaga.domain.service.auth.EntryService
+import jp.arsaga.domain.useCase.auth.EntryUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 class EntryQueryImpl(
     private val context: Context,
     private val coroutineScope: CoroutineScope
-) : EntryService.Query {
+) : EntryUseCase.Query {
 
     override fun queryLocalCacheData(
         localDataKey: LocalDataKey<String?>,

@@ -26,11 +26,11 @@ object ModuleStructure {
         _presentation_view_auth(LayerType.view, DomainType.auth),
         _presentation_viewModel_auth(LayerType.viewModel, DomainType.auth),
         _dataStore_repository_auth(LayerType.repository, DomainType.auth),
-        _domain_service_auth(LayerType.service, DomainType.auth),
+        _domain_useCase_auth(LayerType.useCase, DomainType.auth),
         _domain_entity_auth(LayerType.entity, DomainType.auth),
         _presentation_view_core(LayerType.view, DomainType.core),
         _presentation_viewModel_core(LayerType.viewModel, DomainType.core),
-        _domain_service_core(LayerType.service, DomainType.core),
+        _domain_useCase_core(LayerType.useCase, DomainType.core),
         _dataStore_repository_core(LayerType.repository, DomainType.core),
         _domain_entity_core(LayerType.entity, DomainType.core),
         _dataStore_repository(LayerType.repository, null),
@@ -97,7 +97,7 @@ object ModuleStructure {
          * コルーチン(Flowなどの拡張も含む)とentityモジュールだけで実現できるロジックを書く
          * viewModelと分けている理由はテスタビリティのため
          */
-        service,
+        useCase,
 
         /**
          * データの型とenumとAndroidに依存しないUtilロジックのクラスを置くモジュール
@@ -119,7 +119,7 @@ object ModuleStructure {
             ModuleType._presentation_view_auth,
             ModuleType._presentation_viewModel_auth,
             ModuleType._dataStore_repository_auth,
-            ModuleType._domain_service_auth,
+            ModuleType._domain_useCase_auth,
             ModuleType._domain_entity_auth -> {
                 ModuleExtension.implDomainModule(this, moduleType)
             }
@@ -138,18 +138,18 @@ object ModuleStructure {
                 api(ModuleType._extension_view)
             }
             ModuleType._presentation_viewModel_core -> {
-                api(ModuleType._domain_service_core)
+                api(ModuleType._domain_useCase_core)
                 api(ModuleType._extension_viewModel)
             }
             ModuleType._dataStore_repository_core -> {
                 api(ModuleType._dataStore_gateway_local)
                 api(ModuleType._dataStore_gateway_sdk)
                 api(ModuleType._dataStore_gateway_server)
-                api(ModuleType._domain_service_core)
+                api(ModuleType._domain_useCase_core)
                 api(ModuleType._extension_repository)
                 api(ModuleType._extension_gateway)
             }
-            ModuleType._domain_service_core -> {
+            ModuleType._domain_useCase_core -> {
                 api(ModuleType._domain_entity_core)
             }
             // gatewayモジュール
