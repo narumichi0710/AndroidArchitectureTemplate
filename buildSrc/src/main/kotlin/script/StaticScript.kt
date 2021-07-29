@@ -5,6 +5,9 @@ import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.internal.dsl.BaseFlavor
 import com.android.build.gradle.internal.dsl.DefaultConfig
 import org.gradle.api.JavaVersion
+import org.gradle.api.Project
+import java.io.File
+import java.util.*
 
 /**
  * 全プロジェクトで弄ることがないビルドスクリプトを置く場所
@@ -12,9 +15,13 @@ import org.gradle.api.JavaVersion
 
 object StaticScript {
 
-    fun baseExtension(baseExtension: BaseExtension, isRoot: Boolean = false) {
+    fun baseExtension(
+        baseExtension: BaseExtension,
+        isRoot: Boolean = false,
+        project: Project? = null
+    ) {
         defaultConfig(baseExtension.defaultConfig)
-        commonBaseExtension(baseExtension, isRoot)
+        commonBaseExtension(baseExtension, isRoot, project)
     }
 
     private fun defaultConfig(defaultConfig: DefaultConfig) =
@@ -25,9 +32,9 @@ object StaticScript {
             vectorDrawables.useSupportLibrary = true
         }
 
-    private fun commonBaseExtension(baseExtension: BaseExtension, isRoot: Boolean) =
+    private fun commonBaseExtension(baseExtension: BaseExtension, isRoot: Boolean, project: Project?) =
         baseExtension.apply {
-            buildFlavor(this, isRoot)
+            buildFlavor(this, isRoot, project)
             packagingOptions {
                 exclude("META-INF/*.kotlin_module")
             }
@@ -37,10 +44,10 @@ object StaticScript {
             }
         }
 
-    private fun buildFlavor(baseExtension: BaseExtension, isRoot: Boolean) = baseExtension.apply {
+    private fun buildFlavor(baseExtension: BaseExtension, isRoot: Boolean, project: Project?) = baseExtension.apply {
         flavorDimensions("environment")
         releaseBuildSetting(baseExtension, isRoot)
-        productBuildSetting(baseExtension, isRoot)
+        productBuildSetting(baseExtension, isRoot, project)
     }
 
     private fun releaseBuildSetting(baseExtension: BaseExtension, isRoot: Boolean) =
@@ -62,7 +69,8 @@ object StaticScript {
 
     private fun productBuildSetting(
         baseExtension: BaseExtension,
-        isRoot: Boolean
+        isRoot: Boolean,
+        project: Project?
     ) = baseExtension.apply {
         productFlavors {
             ProjectProperty.FlavorType.values().forEach { flavorType ->
@@ -77,6 +85,14 @@ object StaticScript {
                             }
                             setBuildConfig(this@create, flavorType, buildTypeType)
                             setManifestPlaceHolder(baseExtension, flavorType, buildTypeType)
+                            if (
+                                isRoot && project != null &&
+                                flavorType == ProjectProperty.FlavorType.prod &&
+                                buildTypeType == ProjectProperty.BuildTypeType.release
+                            ) {
+                                setSigningConfigs(this@apply, project)
+                                signingConfig = signingConfigs.getAt(SIGNING_KEY)
+                            }
                         }
                     }
                     if (isRoot && flavorType != ProjectProperty.FlavorType.prod) {
@@ -86,6 +102,35 @@ object StaticScript {
             }
         }
     }
+
+    private const val SIGNING_KEY = "release"
+
+    /**
+     * SigningConfigsの設定。
+     * パスワードは環境変数から取得し、KeystoreはBase64エンコードされた文字列をCIのシークレットに保存し、
+     * ビルドのたびにデコードしてファイル化するようにする。
+     */
+    private fun setSigningConfigs(baseExtension: BaseExtension, project: Project) {
+        baseExtension.signingConfigs {
+            create(SIGNING_KEY) {
+                keyAlias = SIGNING_KEY
+                keyPassword = getConfigValue(project, ProjectProperty.BuildVariantType.ANDROID_KEY_PASSWORD.name)
+                storePassword = getConfigValue(project, ProjectProperty.BuildVariantType.ANDROID_STORE_PASSWORD.name)
+                storeFile = getConfigValue(project, ProjectProperty.BuildVariantType.ANDROID_KEYSTORE_FILE_PATH.name)
+                    ?.let { File(it) }
+            }
+        }
+    }
+
+    /**
+     * local.propertiesもしくはCIの環境変数からキーの値のStringを取得するための関数
+     */
+    private fun getConfigValue(
+        project: Project,
+        key: String
+    ): String? = runCatching { project.properties[key] as String }
+        .recover { System.getenv(key) }
+        .getOrNull()
 
     /**
      * gradle.ktsのBuildTypeの仕様として

@@ -6,6 +6,10 @@ object ProjectProperty {
 
     const val MIN_SDK_VERSION = 23
 
+    internal enum class BuildVariantType {
+        ANDROID_KEY_PASSWORD, ANDROID_STORE_PASSWORD, ANDROID_KEYSTORE_FILE_PATH
+    }
+
     internal enum class FlavorType {
         prod, stg, dev
     }
