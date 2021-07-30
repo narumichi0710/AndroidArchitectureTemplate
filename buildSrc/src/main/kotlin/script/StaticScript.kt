@@ -30,7 +30,7 @@ object StaticScript {
      */
     private fun defaultConfig(defaultConfig: DefaultConfig) {
         defaultConfig.apply {
-            minSdkVersion(ProjectProperty.MIN_SDK_VERSION)
+            minSdk = ProjectProperty.MIN_SDK_VERSION
             multiDexEnabled = true
             testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
             vectorDrawables.useSupportLibrary = true
@@ -48,6 +48,7 @@ object StaticScript {
         parameterizeBuildFlavorSetting(this, isRoot, project)
         packagingOptions {
             exclude("META-INF/*.kotlin_module")
+            exclude("META-INF/*.md")
         }
         compileOptions {
             sourceCompatibility = JavaVersion.VERSION_1_8
@@ -134,7 +135,6 @@ object StaticScript {
             isShrinkResources = true
         }
         isMinifyEnabled = true
-        isUseProguard = true
         proguardFiles(
             baseExtension.getDefaultProguardFile("proguard-android.txt"),
             "proguard-rules.pro"

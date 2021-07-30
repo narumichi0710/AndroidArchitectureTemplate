@@ -1,7 +1,7 @@
 android {
     defaultConfig {
         setCompileSdkVersion(30)
-        setApplicationId(ProjectProperty.APPLICATION_ID)
+        applicationId = ProjectProperty.APPLICATION_ID
     }
     script.StaticScript.baseExtension(this, true, project)
 }
