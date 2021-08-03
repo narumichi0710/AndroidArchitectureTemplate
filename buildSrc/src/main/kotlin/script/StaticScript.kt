@@ -113,6 +113,8 @@ object StaticScript {
             buildTypeType.action(this, flavorType)
             if (buildTypeType == ProjectProperty.BuildTypeType.release) {
                 releaseBuildSetting(isRoot, baseExtension, this)
+            } else {
+                debugBuildSetting(baseExtension, this)
             }
             if (isRoot && flavorType != ProjectProperty.FlavorType.prod) {
                 applicationIdSuffix = flavorType.name
@@ -139,6 +141,19 @@ object StaticScript {
             baseExtension.getDefaultProguardFile("proguard-android.txt"),
             "proguard-rules.pro"
         )
+    }
+
+    /**
+     * デバッグビルドに対する設定
+     */
+    private fun debugBuildSetting(
+        baseExtension: BaseExtension,
+        buildType: BuildType
+    ) = buildType.apply {
+        baseExtension.splits {
+            abi.isEnable = false
+            density.isEnable = false
+        }
     }
 
     private const val SIGNING_KEY = "release"
