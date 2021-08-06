@@ -22,6 +22,8 @@ buildscript {
     ext.glide_version = "4.12.0"
     ext.retrofit_version = "2.9.0"
     ext.okhttp_version = '4.9.1'
+    ext.serialization_version = '1.2.2'
+    ext.serialization_converter_version = '0.8.0'
 
     repositories {
         mavenCentral()
@@ -80,6 +82,11 @@ subprojects {
 
                     case ":dataStore:repository:core":
                         implementation "androidx.security:security-crypto:$security_version"
+                        break
+
+                    case ":dataStore:gateway:server":
+                        implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:$serialization_version"
+                        implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:$serialization_converter_version")
                         break
 
                     case ":domain:useCase:core":

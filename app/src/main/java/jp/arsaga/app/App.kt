@@ -2,6 +2,7 @@ package jp.arsaga.app
 
 import android.app.Application
 import jp.arsaga.app.lifecycleCallback.ProgressLoadingHandler
+import jp.arsaga.dataStore.gateway.server.ApiClient
 import jp.arsaga.dataStore.repository.core.TransitionCallbackHandler
 import timber.log.Timber
 
@@ -23,6 +24,7 @@ class App : Application() {
 
     private fun saveSingleton() {
         listOf<Any>(
+            ApiClient
         ).forEach { persistentContainer.add(it) }
     }
 
