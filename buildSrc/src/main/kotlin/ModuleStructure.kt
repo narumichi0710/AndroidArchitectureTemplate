@@ -7,10 +7,8 @@ import org.gradle.api.Project
  * 各build.gradle.ktsから呼び出す関数
  */
 fun Project.moduleStructure() {
-    afterEvaluate {
-        ModuleExtension.findModuleType(this)
-            ?.let { ModuleStructure.implModuleByLayerType(this, it) }
-    }
+    ModuleExtension.findModuleType(this)
+        ?.let { ModuleStructure.implModuleByLayerType(this, it) }
 }
 
 object ModuleStructure {
