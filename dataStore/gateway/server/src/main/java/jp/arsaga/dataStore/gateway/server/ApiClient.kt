@@ -4,7 +4,7 @@ import jp.co.arsaga.extensions.gateway.AbstractApiClient
 import retrofit2.Converter
 
 object ApiClient : AbstractApiClient<IApiType>() {
-    override val baseUrl: String = ""
+    override val baseUrl: String = BuildConfig.BASE_URL
 
     override fun isDebug(): Boolean = BuildConfig.IS_DEBUG_LOGGING
 
