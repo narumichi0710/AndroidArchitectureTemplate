@@ -9,22 +9,22 @@ object ModuleExtension {
     /**
      * モジュール一覧から特定のレイヤーのものだけをフィルタリングして返す関数
      */
-    internal fun byLayerModuleList(layerType: ModuleStructure.LayerType): List<Module.Type> =
-        Module.Type
+    internal fun byLayerModuleList(layerType: ModuleStructure.LayerType): List<ProjectModule.Type> =
+        ProjectModule.Type
             .values().toList()
             .filter { it.name.contains(layerType.name) }
 
-    internal fun findModuleType(project: Project): Module.Type? {
+    internal fun findModuleType(project: Project): ProjectModule.Type? {
         val projectName = convertEnumName(project)
-        return Module.Type.values()
+        return ProjectModule.Type.values()
             .find { projectName == it.name }
     }
 
     internal fun implAllModule(
-        rootModuleType: Module.Type,
-        importAction: (Module.Type) -> Unit
+        rootModuleType: ProjectModule.Type,
+        importAction: (ProjectModule.Type) -> Unit
     ) {
-        Module.Type.values().toSet()
+        ProjectModule.Type.values().toSet()
             .minus(rootModuleType).forEach {
                 importAction(it)
             }
@@ -32,11 +32,11 @@ object ModuleExtension {
 
     internal fun implDomainModule(
         dependencyHandler: DependencyHandler,
-        moduleType: Module.Type
+        moduleType: ProjectModule.Type
     ) {
         if (isUnnecessaryImplModule(moduleType)) return
         val needLayerModuleList = filteringNeedLayer(moduleType)
-        Module.Type.values()
+        ProjectModule.Type.values()
             .filter { it.domainType == moduleType.domainType && it.layerType in needLayerModuleList }
             .forEach {
                 dependencyHandler.impl(it)
@@ -50,7 +50,7 @@ object ModuleExtension {
      * appとドメインがcoreのモジュールはレイヤー構造が変わるので弾く
      */
     private fun isUnnecessaryImplModule(
-        moduleType: Module.Type
+        moduleType: ProjectModule.Type
     ): Boolean = moduleType.domainType in listOf(null, ModuleStructure.DomainType.core)
 
     /**
@@ -58,7 +58,7 @@ object ModuleExtension {
      * appとgatewayはドメインごとの区切りがないので不要になる
      */
     private fun filteringNeedLayer(
-        moduleType: Module.Type
+        moduleType: ProjectModule.Type
     ): List<ModuleStructure.LayerType> = when (moduleType.layerType) {
         ModuleStructure.LayerType.view ->
             listOf(
@@ -76,24 +76,24 @@ object ModuleExtension {
     }
 
     private fun sameLayerCoreModule(
-        moduleType: Module.Type
-    ): Module.Type? = Module.Type.values()
+        moduleType: ProjectModule.Type
+    ): ProjectModule.Type? = ProjectModule.Type.values()
         .find { it.domainType == ModuleStructure.DomainType.core && it.layerType == moduleType.layerType }
 
     private fun convertEnumName(project: Project): String = project.path
         .replace(":", "_")
 
-    fun convertModulePath(moduleType: Module.Type): String = moduleType.name
+    fun convertModulePath(moduleType: ProjectModule.Type): String = moduleType.name
         .replace("_", ":")
 
-    internal fun DependencyHandler.api(moduleType: Module.Type) {
+    internal fun DependencyHandler.api(moduleType: ProjectModule.Type) {
         convertModulePath(moduleType).let { modulePath ->
             println("structure:api => $modulePath")
             add("api", project(mapOf("path" to modulePath)))
         }
     }
 
-    internal fun DependencyHandler.impl(moduleType: Module.Type) {
+    internal fun DependencyHandler.impl(moduleType: ProjectModule.Type) {
         convertModulePath(moduleType).let { modulePath ->
             println("structure:impl => $modulePath")
             add("implementation", project(mapOf("path" to modulePath)))

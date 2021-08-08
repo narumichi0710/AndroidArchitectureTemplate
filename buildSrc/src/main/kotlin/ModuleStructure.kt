@@ -84,64 +84,64 @@ object ModuleStructure {
      */
     internal fun implModuleByLayerType(
         project: Project,
-        moduleType: Module.Type
+        moduleType: ProjectModule.Type
     ) = project.dependencies.apply {
         when (moduleType) {
             // 特定のドメインに属するモジュール(主にここの種類が増えていく)
-            Module.Type._presentation_view_auth,
-            Module.Type._presentation_viewModel_auth,
-            Module.Type._dataStore_repository_auth,
-            Module.Type._domain_useCase_auth,
-            Module.Type._domain_entity_auth -> {
+            ProjectModule.Type._presentation_view_auth,
+            ProjectModule.Type._presentation_viewModel_auth,
+            ProjectModule.Type._dataStore_repository_auth,
+            ProjectModule.Type._domain_useCase_auth,
+            ProjectModule.Type._domain_entity_auth -> {
                 ModuleExtension.implDomainModule(this, moduleType)
             }
             // 親モジュール
-            Module.Type._app -> ModuleExtension.implAllModule(Module.Type._app) {
+            ProjectModule.Type._app -> ModuleExtension.implAllModule(ProjectModule.Type._app) {
                 impl(it)
             }
-            Module.Type._dataStore_repository -> {
+            ProjectModule.Type._dataStore_repository -> {
                 ModuleExtension.byLayerModuleList(LayerType.repository).forEach {
-                    if (it != Module.Type._dataStore_repository) api(it)
+                    if (it != ProjectModule.Type._dataStore_repository) api(it)
                 }
             }
             // coreモジュール
-            Module.Type._presentation_view_core -> {
-                api(Module.Type._presentation_viewModel_core)
-                api(Module.Type._extension_view)
+            ProjectModule.Type._presentation_view_core -> {
+                api(ProjectModule.Type._presentation_viewModel_core)
+                api(ProjectModule.Type._extension_view)
             }
-            Module.Type._presentation_viewModel_core -> {
-                api(Module.Type._domain_useCase_core)
-                api(Module.Type._extension_viewModel)
+            ProjectModule.Type._presentation_viewModel_core -> {
+                api(ProjectModule.Type._domain_useCase_core)
+                api(ProjectModule.Type._extension_viewModel)
             }
-            Module.Type._dataStore_repository_core -> {
-                api(Module.Type._dataStore_gateway_local)
-                api(Module.Type._dataStore_gateway_sdk)
-                api(Module.Type._dataStore_gateway_server)
-                api(Module.Type._domain_useCase_core)
-                api(Module.Type._extension_repository)
-                api(Module.Type._extension_gateway)
+            ProjectModule.Type._dataStore_repository_core -> {
+                api(ProjectModule.Type._dataStore_gateway_local)
+                api(ProjectModule.Type._dataStore_gateway_sdk)
+                api(ProjectModule.Type._dataStore_gateway_server)
+                api(ProjectModule.Type._domain_useCase_core)
+                api(ProjectModule.Type._extension_repository)
+                api(ProjectModule.Type._extension_gateway)
             }
-            Module.Type._domain_useCase_core -> {
-                api(Module.Type._domain_entity_core)
+            ProjectModule.Type._domain_useCase_core -> {
+                api(ProjectModule.Type._domain_entity_core)
             }
             // gatewayモジュール
-            Module.Type._dataStore_gateway_sdk -> {
+            ProjectModule.Type._dataStore_gateway_sdk -> {
             }
-            Module.Type._dataStore_gateway_local -> {
-                impl(Module.Type._domain_entity_core)
+            ProjectModule.Type._dataStore_gateway_local -> {
+                impl(ProjectModule.Type._domain_entity_core)
             }
-            Module.Type._dataStore_gateway_server -> {
-                impl(Module.Type._extension_gateway)
+            ProjectModule.Type._dataStore_gateway_server -> {
+                impl(ProjectModule.Type._extension_gateway)
                 ModuleExtension.byLayerModuleList(LayerType.entity).forEach {
                     api(it)
                 }
             }
             // 依存モジュールを持たないもの
-            Module.Type._domain_entity_core,
-            Module.Type._extension_view,
-            Module.Type._extension_viewModel,
-            Module.Type._extension_repository,
-            Module.Type._extension_gateway -> {
+            ProjectModule.Type._domain_entity_core,
+            ProjectModule.Type._extension_view,
+            ProjectModule.Type._extension_viewModel,
+            ProjectModule.Type._extension_repository,
+            ProjectModule.Type._extension_gateway -> {
             }
         }
     }

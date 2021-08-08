@@ -4,7 +4,7 @@
  * モジュール名に合わせて頭と各単語間に'_'が必須
  */
 
-object Module {
+object ProjectModule {
     enum class Type(val layerType: ModuleStructure.LayerType?, val domainType: ModuleStructure.DomainType?) {
         _presentation_view_auth(ModuleStructure.LayerType.view, ModuleStructure.DomainType.auth),
         _presentation_viewModel_auth(ModuleStructure.LayerType.viewModel, ModuleStructure.DomainType.auth),

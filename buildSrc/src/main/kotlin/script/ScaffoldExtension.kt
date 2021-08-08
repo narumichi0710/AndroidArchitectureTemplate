@@ -46,7 +46,7 @@ object ScaffoldExtension {
         .map { it.name.replace("_", ":") }
         .filter { it !in settingGradleModuleNameList }
 
-    private fun needModuleNameList(): List<Module.Entity> =
+    private fun needModuleNameList(): List<ProjectModule.Entity> =
         ModuleStructure.DomainType.values().flatMap { domain ->
             ModuleStructure.LayerType.values().mapNotNull { layer ->
                 moduleLayerCategory.find { it.value.contains(layer) }?.let {
@@ -58,7 +58,7 @@ object ScaffoldExtension {
                         .append(domain.name)
                         .toString()
                 }?.let {
-                    Module.Entity(it, layer, domain)
+                    ProjectModule.Entity(it, layer, domain)
                 }
             }
         }
