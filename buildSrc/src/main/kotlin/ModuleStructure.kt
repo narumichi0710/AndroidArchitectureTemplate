@@ -14,37 +14,9 @@ fun Project.moduleStructure() {
 object ModuleStructure {
 
     /**
-     * モジュール一覧
-     * モジュール追加時に手動で追加する
-     * 命名規則として'_'を':'に置換してimplするので
-     * モジュール名に合わせて頭と各単語間に'_'が必須
-     */
-    internal enum class ModuleType(val layerType: LayerType?, val domainType: DomainType?) {
-        _app(null, null),
-        _presentation_view_auth(LayerType.view, DomainType.auth),
-        _presentation_viewModel_auth(LayerType.viewModel, DomainType.auth),
-        _dataStore_repository_auth(LayerType.repository, DomainType.auth),
-        _domain_useCase_auth(LayerType.useCase, DomainType.auth),
-        _domain_entity_auth(LayerType.entity, DomainType.auth),
-        _presentation_view_core(LayerType.view, DomainType.core),
-        _presentation_viewModel_core(LayerType.viewModel, DomainType.core),
-        _domain_useCase_core(LayerType.useCase, DomainType.core),
-        _dataStore_repository_core(LayerType.repository, DomainType.core),
-        _domain_entity_core(LayerType.entity, DomainType.core),
-        _dataStore_repository(LayerType.repository, null),
-        _dataStore_gateway_server(LayerType.gateway, null),
-        _dataStore_gateway_sdk(LayerType.gateway, null),
-        _dataStore_gateway_local(LayerType.gateway, null),
-        _extension_view(LayerType.view, null),
-        _extension_viewModel(LayerType.viewModel, null),
-        _extension_repository(LayerType.repository, null),
-        _extension_gateway(LayerType.gateway, null),
-    }
-
-    /**
      * アプリ内で扱うドメイン(概念)一覧
      */
-    internal enum class DomainType {
+    enum class DomainType {
         core,
         auth
     }
@@ -52,7 +24,7 @@ object ModuleStructure {
     /**
      * モジュールの各レイヤーに特徴的な名前の種類
      */
-    internal enum class LayerType {
+    enum class LayerType {
         /**
          * レイアウト・アニメーション・ナビゲーション・端末依存解決について書くレイヤー
          * 主にActivity, Fragment,, View, Navigation, アニメーション関連のクラスを置く
@@ -112,64 +84,64 @@ object ModuleStructure {
      */
     internal fun implModuleByLayerType(
         project: Project,
-        moduleType: ModuleType
+        moduleType: Module.Type
     ) = project.dependencies.apply {
         when (moduleType) {
             // 特定のドメインに属するモジュール(主にここの種類が増えていく)
-            ModuleType._presentation_view_auth,
-            ModuleType._presentation_viewModel_auth,
-            ModuleType._dataStore_repository_auth,
-            ModuleType._domain_useCase_auth,
-            ModuleType._domain_entity_auth -> {
+            Module.Type._presentation_view_auth,
+            Module.Type._presentation_viewModel_auth,
+            Module.Type._dataStore_repository_auth,
+            Module.Type._domain_useCase_auth,
+            Module.Type._domain_entity_auth -> {
                 ModuleExtension.implDomainModule(this, moduleType)
             }
             // 親モジュール
-            ModuleType._app -> ModuleExtension.implAllModule(ModuleType._app) {
+            Module.Type._app -> ModuleExtension.implAllModule(Module.Type._app) {
                 impl(it)
             }
-            ModuleType._dataStore_repository -> {
+            Module.Type._dataStore_repository -> {
                 ModuleExtension.byLayerModuleList(LayerType.repository).forEach {
-                    if (it != ModuleType._dataStore_repository) api(it)
+                    if (it != Module.Type._dataStore_repository) api(it)
                 }
             }
             // coreモジュール
-            ModuleType._presentation_view_core -> {
-                api(ModuleType._presentation_viewModel_core)
-                api(ModuleType._extension_view)
+            Module.Type._presentation_view_core -> {
+                api(Module.Type._presentation_viewModel_core)
+                api(Module.Type._extension_view)
             }
-            ModuleType._presentation_viewModel_core -> {
-                api(ModuleType._domain_useCase_core)
-                api(ModuleType._extension_viewModel)
+            Module.Type._presentation_viewModel_core -> {
+                api(Module.Type._domain_useCase_core)
+                api(Module.Type._extension_viewModel)
             }
-            ModuleType._dataStore_repository_core -> {
-                api(ModuleType._dataStore_gateway_local)
-                api(ModuleType._dataStore_gateway_sdk)
-                api(ModuleType._dataStore_gateway_server)
-                api(ModuleType._domain_useCase_core)
-                api(ModuleType._extension_repository)
-                api(ModuleType._extension_gateway)
+            Module.Type._dataStore_repository_core -> {
+                api(Module.Type._dataStore_gateway_local)
+                api(Module.Type._dataStore_gateway_sdk)
+                api(Module.Type._dataStore_gateway_server)
+                api(Module.Type._domain_useCase_core)
+                api(Module.Type._extension_repository)
+                api(Module.Type._extension_gateway)
             }
-            ModuleType._domain_useCase_core -> {
-                api(ModuleType._domain_entity_core)
+            Module.Type._domain_useCase_core -> {
+                api(Module.Type._domain_entity_core)
             }
             // gatewayモジュール
-            ModuleType._dataStore_gateway_sdk -> {
+            Module.Type._dataStore_gateway_sdk -> {
             }
-            ModuleType._dataStore_gateway_local -> {
-                impl(ModuleType._domain_entity_core)
+            Module.Type._dataStore_gateway_local -> {
+                impl(Module.Type._domain_entity_core)
             }
-            ModuleType._dataStore_gateway_server -> {
-                impl(ModuleType._extension_gateway)
+            Module.Type._dataStore_gateway_server -> {
+                impl(Module.Type._extension_gateway)
                 ModuleExtension.byLayerModuleList(LayerType.entity).forEach {
                     api(it)
                 }
             }
             // 依存モジュールを持たないもの
-            ModuleType._domain_entity_core,
-            ModuleType._extension_view,
-            ModuleType._extension_viewModel,
-            ModuleType._extension_repository,
-            ModuleType._extension_gateway -> {
+            Module.Type._domain_entity_core,
+            Module.Type._extension_view,
+            Module.Type._extension_viewModel,
+            Module.Type._extension_repository,
+            Module.Type._extension_gateway -> {
             }
         }
     }
