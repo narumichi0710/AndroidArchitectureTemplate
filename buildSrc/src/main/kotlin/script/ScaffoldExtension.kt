@@ -3,6 +3,7 @@ package script
 import java.io.File
 import java.io.FileOutputStream
 import java.io.FileReader
+import java.io.PrintWriter
 import kotlin.streams.toList
 
 object ScaffoldExtension {
@@ -40,11 +41,41 @@ object ScaffoldExtension {
         }
     }
 
+    fun updateProjectModuleType(
+        projectModuleTypeDirectoryPath: String
+    ) {
+        val newProjectModuleContents = projectModuleTypeDirectoryPath
+            .run(::FileReader).buffered().use { reader ->
+                reader.readLines().toMutableList().also { codeList ->
+                    codeList.removeIf { it.contains("//autoGen") }
+                    codeList.indexOfFirst { it.contains(";") }
+                        .run { codeList.addAll(this, needProjectModuleList()) }
+                }
+            }
+        PrintWriter(File(projectModuleTypeDirectoryPath)).use { writer ->
+            writer.print(newProjectModuleContents.joinToString("\n"))
+        }
+    }
+
     fun missingModuleNameList(
         settingGradleModuleNameList: List<String>
     ): List<String> = needModuleNameList()
         .map { it.name.replace("_", ":") }
         .filter { it !in settingGradleModuleNameList }
+
+    private fun needProjectModuleList() = needModuleNameList().map {
+        StringBuilder()
+            .append("        ")
+            .append(it.name)
+            .append("(")
+            .append(it.layerType.javaClass.name + "." + it.layerType.name)
+            .append(", ")
+            .append(it.domainType.javaClass.name + "." + it.domainType.name)
+            .append("),")
+            .append(" //autoGen")
+            .toString()
+            .replace("$", ".")
+    }
 
     private fun needModuleNameList(): List<ProjectModule.Entity> =
         ModuleStructure.DomainType.values().flatMap { domain ->
