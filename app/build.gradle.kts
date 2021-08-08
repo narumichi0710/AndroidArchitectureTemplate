@@ -14,3 +14,17 @@ plugins {
 }
 
 moduleStructure()
+
+val settingsGradlePath = project.rootDir.path?.plus("/settings.gradle.kts")
+
+task("scaffold") {
+    settingsGradlePath
+        ?.run { script.ScaffoldExtension.settingModuleNameList(this) }
+        ?.run { script.ScaffoldExtension.missingModuleNameList(this) }
+        ?.takeIf { it.isNotEmpty() }
+        ?.let {
+            script.ScaffoldExtension.updateSettingModule(settingsGradlePath, it)
+        }
+}
+
+

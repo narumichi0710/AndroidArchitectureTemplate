@@ -25,12 +25,10 @@ object Module {
         _extension_viewModel(ModuleStructure.LayerType.viewModel, null),
         _extension_repository(ModuleStructure.LayerType.repository, null),
         _extension_gateway(ModuleStructure.LayerType.gateway, null),
-        ;
-
-        data class Entity(
-            val name: String,
-            val layerType: ModuleStructure.LayerType,
-            val domainType: ModuleStructure.DomainType
-        )
     }
+    data class Entity(
+        val name: String,
+        val layerType: ModuleStructure.LayerType,
+        val domainType: ModuleStructure.DomainType
+    )
 }
