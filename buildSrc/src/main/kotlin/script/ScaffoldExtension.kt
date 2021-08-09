@@ -93,35 +93,26 @@ object ScaffoldExtension {
         exportPathList: List<Path>
     ): List<() -> List<() -> Unit>> = templateDirectory.walkTopDown().map { from ->
         {
-            exportPathList.map { to ->
-                {
-                    val moduleName = to.toAbsolutePath().toString().removePrefix(projectPath)
-                    from.absolutePath
-                        .replace(
-                            "moduleTemplate/base",
-                            moduleName
-                        ).run(::File)
-                        .run { sourceCodeFilePathAdapter(this, moduleName) }
-                        .run {
-                            if (from.isFile) {
-                                runCatching {
-                                    Files.copy(
-                                        decoratePackagePath(moduleName, from.path),
-                                        toPath()
-                                    )
-                                }.onSuccess { println("success createNewFile::${toPath()}") }
-                                    .onFailure { println("failure createNewFile::${toPath()}") }
-                            } else {
-                                runCatching { Files.createDirectories(toPath()) }
-                                    .onSuccess { println("success createNewDirectory::${toPath()}") }
-                                    .onFailure { println("failure createNewDirectory::${toPath()}") }
-                            }
-                        }
-                    Unit
-                }
-            }.toList()
+            baseSourceCodeCreate(projectPath, from, exportPathList)
         }
     }.toList()
+
+    private fun baseSourceCodeCreate(
+        projectPath: String,
+        from: File,
+        exportPathList: List<Path>
+    ): List<() -> Unit> = exportPathList.map { to ->
+        {
+            val moduleName = to.toAbsolutePath().toString().removePrefix(projectPath)
+            from.absolutePath
+                .replace(
+                    "moduleTemplate/base",
+                    moduleName
+                ).run(::File)
+                .run { sourceCodeFilePathAdapter(this, moduleName) }
+                .run { createNewFile(from, this, moduleName) }
+        }
+    }
 
     private fun sourceCodeFilePathAdapter(
         file: File,
@@ -131,6 +122,18 @@ object ScaffoldExtension {
         else File(file.path.replace("/java", "/java/jp/arsaga/$moduleName")).also {
             Files.createDirectories(Paths.get(it.parent))
         }
+
+    private fun createNewFile(from: File, to: File, moduleName: String) {
+        if (from.isFile) {
+            runCatching { Files.copy(decoratePackagePath(moduleName, from.path), to.toPath()) }
+                .onSuccess { println("success createNewFile::${to.toPath()}") }
+                .onFailure { println("failure createNewFile::${to.toPath()}") }
+        } else {
+            runCatching { Files.createDirectories(to.toPath()) }
+                .onSuccess { println("success createNewDirectory::${to.toPath()}") }
+                .onFailure { println("failure createNewDirectory::${to.toPath()}") }
+        }
+    }
 
     private fun decoratePackagePath(moduleName: String, path: String): InputStream = path
         .run(::FileInputStream)
