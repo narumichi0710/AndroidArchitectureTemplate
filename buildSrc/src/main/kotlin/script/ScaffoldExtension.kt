@@ -1,11 +1,9 @@
 package script
 
-import org.gradle.kotlin.dsl.concurrent.withAsynchronousIO
 import java.io.*
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
-import kotlin.coroutines.suspendCoroutine
 import kotlin.streams.toList
 
 object ScaffoldExtension {
@@ -103,8 +101,15 @@ object ScaffoldExtension {
                             "moduleTemplate",
                             to.toAbsolutePath().toString().removePrefix(projectPath)
                         ).run(::File).run {
-                            if (from.isFile) Files.copy(FileInputStream(from.path), toPath())
-                            else runCatching { Files.createDirectories(toPath()) }
+                            if (from.isFile) {
+                                runCatching { Files.copy(FileInputStream(from.path), toPath()) }
+                                    .onSuccess { println("success createNewFile::${toPath()}") }
+                                    .onFailure { println("failure createNewFile::${toPath()}") }
+                            } else {
+                                runCatching { Files.createDirectories(toPath()) }
+                                    .onSuccess { println("success createNewDirectory::${toPath()}") }
+                                    .onFailure { println("failure createNewDirectory::${toPath()}") }
+                            }
                         }
                     Unit
                 }
