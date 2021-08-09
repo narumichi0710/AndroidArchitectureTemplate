@@ -38,7 +38,6 @@ class AuthFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View = composable(R.id.loginFragment) {
-            Text (text = "Hello Masaki!")
-        }
+        Text (text = "Hello Masaki!")
     }
 }
