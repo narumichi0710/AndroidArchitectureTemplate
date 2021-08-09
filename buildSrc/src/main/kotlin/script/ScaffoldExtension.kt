@@ -192,7 +192,7 @@ object ScaffoldExtension {
         editContent: (InputStreamReader) -> List<String>
     ) {
         if (from.isFile) {
-            runCatching { Files.copy(decoratePackagePath(from.path, editContent), to.toPath()) }
+            runCatching { Files.copy(decorateTemplateFile(from.path, editContent), to.toPath()) }
                 .onSuccess { println("success createNewFile::${to.toPath()}") }
                 .onFailure { println("failure createNewFile::${to.toPath()}") }
         } else {
@@ -202,7 +202,7 @@ object ScaffoldExtension {
         }
     }
 
-    private fun decoratePackagePath(
+    private fun decorateTemplateFile(
         path: String,
         editContent: (InputStreamReader) -> List<String>
     ): InputStream = path
