@@ -100,10 +100,9 @@ object ScaffoldExtension {
                         .replace(
                             "moduleTemplate/base",
                             moduleName
-                        ).run(::File).let {
-                            if (!it.parent.endsWith("/java")) it
-                            else File(it.path.replace("/java", "/java/jp/arsaga/$moduleName"))
-                        }.run {
+                        ).run(::File)
+                        .run { sourceCodeFilePathAdapter(this, moduleName) }
+                        .run {
                             if (from.isFile) {
                                 runCatching {
                                     Files.copy(
@@ -123,6 +122,15 @@ object ScaffoldExtension {
             }.toList()
         }
     }.toList()
+
+    private fun sourceCodeFilePathAdapter(
+        file: File,
+        moduleName: String
+    ): File =
+        if (!file.parent.endsWith("/java")) file
+        else File(file.path.replace("/java", "/java/jp/arsaga/$moduleName")).also {
+            Files.createDirectories(Paths.get(it.parent))
+        }
 
     private fun decoratePackagePath(moduleName: String, path: String): InputStream = path
         .run(::FileInputStream)
