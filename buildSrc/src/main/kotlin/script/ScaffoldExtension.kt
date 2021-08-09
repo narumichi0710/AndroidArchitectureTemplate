@@ -96,14 +96,19 @@ object ScaffoldExtension {
         {
             exportPathList.map { to ->
                 {
+                    val moduleName = to.toAbsolutePath().toString().removePrefix(projectPath)
                     from.absolutePath
                         .replace(
                             "moduleTemplate",
-                            to.toAbsolutePath().toString().removePrefix(projectPath)
+                            moduleName
                         ).run(::File).run {
                             if (from.isFile) {
-                                runCatching { Files.copy(FileInputStream(from.path), toPath()) }
-                                    .onSuccess { println("success createNewFile::${toPath()}") }
+                                runCatching {
+                                    Files.copy(
+                                        decoratePackagePath(moduleName, from.path),
+                                        toPath()
+                                    )
+                                }.onSuccess { println("success createNewFile::${toPath()}") }
                                     .onFailure { println("failure createNewFile::${toPath()}") }
                             } else {
                                 runCatching { Files.createDirectories(toPath()) }
@@ -116,6 +121,18 @@ object ScaffoldExtension {
             }.toList()
         }
     }.toList()
+
+    private fun decoratePackagePath(moduleName: String, path: String): InputStream = path
+        .run(::FileInputStream)
+        .run(::InputStreamReader).use { reader ->
+            reader.readLines().map {
+                if (!it.contains("jp.arsaga")) it
+                else moduleName
+                    .replace("/", ".")
+                    .run { it.replace("jp.arsaga", "jp.arsaga$this") }
+            }
+        }.joinToString("\n")
+        .byteInputStream()
 
     private fun needProjectModuleList() = needModuleNameList().map {
         StringBuilder()
