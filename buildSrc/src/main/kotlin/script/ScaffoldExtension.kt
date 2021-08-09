@@ -136,7 +136,7 @@ object ScaffoldExtension {
         else {
             val layerName = sliceLastSlashAfter(from.parent.toString())
             exportPathList.mapNotNull { to ->
-                if (!to.parent.toString().endsWith(layerName)) null
+                if (!to.toString().contains("/$layerName/")) null
                 else {
                     {
                         val moduleName = getModuleName(to, projectPath)
@@ -150,13 +150,20 @@ object ScaffoldExtension {
                                 "src/main/java/"
                             ).let {
                                 val templateFileName = it.substringAfterLast("/")
-                                it.replace(templateFileName, toUpperCamel(domainName).plus(templateFileName))
+                                it.replace(
+                                    templateFileName,
+                                    toUpperCamel(domainName).plus(templateFileName)
+                                )
                             }.run(::File)
                             .run { sourceCodeFilePathAdapter(this, moduleName) }
                             .run {
                                 createNewFile(from, this) { reader ->
                                     reader.readLines().map {
-                                        it.replace("{Small}", domainName)
+                                        val pathString = moduleName
+                                            .run { substring(indexOf(layerName)) }
+                                            .replace("/", ".")
+                                            .removePrefix(layerName.plus("."))
+                                        it.replace("{Small}", pathString)
                                             .replace("{Large}", toUpperCamel(domainName))
                                     }
                                 }
