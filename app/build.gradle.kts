@@ -28,6 +28,7 @@ task("scaffold") {
             rootPath?.plus(ProjectModule.THIS_FILE_PATH)
                 ?.run(script.ScaffoldExtension::updateProjectModuleType)
             script.ScaffoldExtension.updateSettingModule(settingsGradlePath, it)
+            rootPath?.run { script.ScaffoldExtension.generateNewModule(this, it) }
         }
 }
 

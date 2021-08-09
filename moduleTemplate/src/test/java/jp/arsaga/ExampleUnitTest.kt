@@ -1,4 +1,4 @@
-package jp.arsaga.presentation.view.auth
+package jp.arsaga
 
 import org.junit.Test
 

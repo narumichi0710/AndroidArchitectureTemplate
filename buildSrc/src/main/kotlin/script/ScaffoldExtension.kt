@@ -1,9 +1,9 @@
 package script
 
-import java.io.File
-import java.io.FileOutputStream
-import java.io.FileReader
-import java.io.PrintWriter
+import java.io.*
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
 import kotlin.streams.toList
 
 object ScaffoldExtension {
@@ -62,6 +62,44 @@ object ScaffoldExtension {
     ): List<String> = needModuleNameList()
         .map { it.name.replace("_", ":") }
         .filter { it !in settingGradleModuleNameList }
+
+    fun generateNewModule(projectPath: String, increasedModuleNameList: List<String>) {
+        allCopy(
+            projectPath,
+            getTemplateDirectoryPathList(projectPath),
+            getAllNewDirectoryPathList(projectPath, increasedModuleNameList)
+        )
+    }
+
+    private fun getAllNewDirectoryPathList(
+        projectPath: String,
+        increasedModuleNameList: List<String>
+    ): List<Path> = increasedModuleNameList.mapNotNull { moduleName ->
+        runCatching {
+            projectPath.plus(moduleName.replace(":", "/"))
+                .run(Paths::get)
+                ?.run(Files::createDirectories)
+        }.getOrNull()
+    }
+
+    private fun getTemplateDirectoryPathList(projectPath: String): File = projectPath
+        .plus("/moduleTemplate")
+        .run(::File)
+
+    private fun allCopy(projectPath: String, templateDirectory: File, exportPathList: List<Path>) {
+        templateDirectory.walkTopDown().forEach { from ->
+            exportPathList.forEach { to ->
+                from.absolutePath
+                    .replace(
+                        "moduleTemplate",
+                        to.toAbsolutePath().toString().removePrefix(projectPath)
+                    ).run(::File).run {
+                        if (from.isFile) Files.copy(FileInputStream(from.path), toPath())
+                        else runCatching { Files.createDirectories(toPath()) }
+                    }
+            }
+        }
+    }
 
     private fun needProjectModuleList() = needModuleNameList().map {
         StringBuilder()
