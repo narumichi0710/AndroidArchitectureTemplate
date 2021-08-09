@@ -16,9 +16,6 @@ import jp.co.arsaga.extensions.view.getNavController
 class {Large}Fragment : Fragment() {
 
     class {Large}Navigator : {Large}UseCase.Navigator<ActivityCallback> {
-        override val successLogin: ActivityCallback = {
-            TODO()
-        }
     }
 
     private val viewModel by viewModels<{Large}ViewModel> {
