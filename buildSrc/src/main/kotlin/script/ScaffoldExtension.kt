@@ -148,10 +148,10 @@ object ScaffoldExtension {
                             ).replace(
                                 """src/main/java/.+/""".toRegex(),
                                 "src/main/java/"
-                            ).replace(
-                                layerName.run(::toUpperCamel).plus(".kt"),
-                                toUpperCamel(domainName).plus(layerName.run(::toUpperCamel)).plus(".kt")
-                            ).run(::File)
+                            ).let {
+                                val templateFileName = it.substringAfterLast("/")
+                                it.replace(templateFileName, toUpperCamel(domainName).plus(templateFileName))
+                            }.run(::File)
                             .run { sourceCodeFilePathAdapter(this, moduleName) }
                             .run {
                                 createNewFile(from, this) { reader ->
