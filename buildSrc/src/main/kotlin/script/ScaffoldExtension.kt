@@ -1,9 +1,11 @@
 package script
 
+import org.gradle.kotlin.dsl.concurrent.withAsynchronousIO
 import java.io.*
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
+import kotlin.coroutines.suspendCoroutine
 import kotlin.streams.toList
 
 object ScaffoldExtension {
@@ -63,13 +65,15 @@ object ScaffoldExtension {
         .map { it.name.replace("_", ":") }
         .filter { it !in settingGradleModuleNameList }
 
-    fun generateNewModule(projectPath: String, increasedModuleNameList: List<String>) {
-        allCopy(
-            projectPath,
-            getTemplateDirectoryPathList(projectPath),
-            getAllNewDirectoryPathList(projectPath, increasedModuleNameList)
-        )
-    }
+    fun generateNewModule(
+        projectPath: String,
+        increasedModuleNameList: List<String>
+    ): List<() -> List<() -> Unit>> = allCopy(
+        projectPath,
+        getTemplateDirectoryPathList(projectPath),
+        getAllNewDirectoryPathList(projectPath, increasedModuleNameList)
+    )
+
 
     private fun getAllNewDirectoryPathList(
         projectPath: String,
@@ -86,20 +90,27 @@ object ScaffoldExtension {
         .plus("/moduleTemplate")
         .run(::File)
 
-    private fun allCopy(projectPath: String, templateDirectory: File, exportPathList: List<Path>) {
-        templateDirectory.walkTopDown().forEach { from ->
-            exportPathList.forEach { to ->
-                from.absolutePath
-                    .replace(
-                        "moduleTemplate",
-                        to.toAbsolutePath().toString().removePrefix(projectPath)
-                    ).run(::File).run {
-                        if (from.isFile) Files.copy(FileInputStream(from.path), toPath())
-                        else runCatching { Files.createDirectories(toPath()) }
-                    }
-            }
+    private fun allCopy(
+        projectPath: String,
+        templateDirectory: File,
+        exportPathList: List<Path>
+    ): List<() -> List<() -> Unit>> = templateDirectory.walkTopDown().map { from ->
+        {
+            exportPathList.map { to ->
+                {
+                    from.absolutePath
+                        .replace(
+                            "moduleTemplate",
+                            to.toAbsolutePath().toString().removePrefix(projectPath)
+                        ).run(::File).run {
+                            if (from.isFile) Files.copy(FileInputStream(from.path), toPath())
+                            else runCatching { Files.createDirectories(toPath()) }
+                        }
+                    Unit
+                }
+            }.toList()
         }
-    }
+    }.toList()
 
     private fun needProjectModuleList() = needModuleNameList().map {
         StringBuilder()
