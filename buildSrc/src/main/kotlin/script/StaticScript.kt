@@ -47,14 +47,27 @@ object StaticScript {
     ) = baseExtension.apply {
         parameterizeBuildFlavorSetting(this, isRoot, project)
         packagingOptions {
-            exclude("META-INF/*.kotlin_module")
-            exclude("META-INF/*.md")
+            excludes.addAll(excludeList)
         }
         compileOptions {
             sourceCompatibility = JavaVersion.VERSION_1_8
             targetCompatibility = JavaVersion.VERSION_1_8
         }
+        lintOptions {
+            isAbortOnError = true
+        }
     }
+
+    /**
+     * コンパイル時にファイル名が重複した時に無視するルールリスト
+     */
+    private val excludeList = listOf(
+        "META-INF/*.kotlin_module",
+        "META-INF/*.md",
+        "/META-INF/AL2.0",
+        "/META-INF/LGPL2.1",
+        "**/kotlin/**"
+    )
 
     /**
      * ProductFlavorとBuildTypeごとの設定処理を呼び出す

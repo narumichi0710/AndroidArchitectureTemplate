@@ -7,7 +7,7 @@ class Version {
 buildscript {
 
     //コピペを簡便にするためのプロジェクトテンプレートにあるライブラリ専用のバージョン置き場
-    ext.kotlin_version = "1.5.21"
+    ext.kotlin_version = "1.5.10"
     ext.coroutine_version = "1.5.1"
     ext.hilt_version = "2.38.1"
     ext.nav_version = "2.3.5"
@@ -24,6 +24,7 @@ buildscript {
     ext.okhttp_version = '4.9.1'
     ext.serialization_version = '1.2.2'
     ext.serialization_converter_version = '0.8.0'
+    ext.compose_version = '1.0.0'
 
     repositories {
         mavenCentral()
@@ -48,6 +49,7 @@ subprojects {
 
                 implementation "com.jakewharton.timber:timber:$timber_version"
                 implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutine_version"
+                implementation "androidx.compose.runtime:runtime:$compose_version"
 
                 switch (subProject.getPath()) {
                     case ":app":
@@ -56,6 +58,13 @@ subprojects {
 
                     case ":presentation:view:core":
                         api "androidx.constraintlayout:constraintlayout:$constraintlayout_version"
+                        // compose
+                        api "androidx.compose.ui:ui:$compose_version"
+                        api "androidx.compose.material:material:$compose_version"
+                        api "androidx.compose.ui:ui-tooling-preview:$compose_version"
+                        api 'androidx.lifecycle:lifecycle-runtime-ktx:2.3.1'
+                        androidTestApi "androidx.compose.ui:ui-test-junit4:$compose_version"
+                        debugApi "androidx.compose.ui:ui-tooling:$compose_version"
                         break
 
                     case ":extension:view":
@@ -69,6 +78,7 @@ subprojects {
                         break
 
                     case ":presentation:viewModel:core":
+                        api "androidx.lifecycle:lifecycle-viewmodel-compose:1.0.0-alpha07"
                         api "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
                         api "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
                         break
@@ -115,10 +125,15 @@ subprojects {
                 }
                 kotlinOptions {
                     jvmTarget = '1.8'
+                    useIR = true
                 }
                 buildFeatures {
+                    compose true
                     dataBinding true
                     viewBinding true
+                }
+                composeOptions {
+                    kotlinCompilerExtensionVersion compose_version
                 }
             }
         }
