@@ -93,7 +93,11 @@ object ScaffoldExtension {
         exportPathList: List<Path>
     ): List<() -> List<() -> Unit>> = templateDirectory.walkTopDown().map { from ->
         {
-            baseSourceCodeCreate(projectPath, from, exportPathList)
+            if (from.parent.contains("/moduleTemplate/base")) {
+                baseSourceCodeCreate(projectPath, from, exportPathList)
+            } else {
+                layerSourceCodeCreate(projectPath, from, exportPathList)
+            }
         }
     }.toList()
 
@@ -103,15 +107,74 @@ object ScaffoldExtension {
         exportPathList: List<Path>
     ): List<() -> Unit> = exportPathList.map { to ->
         {
-            val moduleName = to.toAbsolutePath().toString().removePrefix(projectPath)
+            val moduleName = getModuleName(to, projectPath)
             from.absolutePath
                 .replace(
                     "moduleTemplate/base",
                     moduleName
                 ).run(::File)
                 .run { sourceCodeFilePathAdapter(this, moduleName) }
-                .run { createNewFile(from, this, moduleName) }
+                .run {
+                    createNewFile(from, this) { reader ->
+                        reader.readLines().map {
+                            if (!it.contains("jp.arsaga")) it
+                            else moduleName
+                                .replace("/", ".")
+                                .run { it.replace("jp.arsaga", "jp.arsaga$this") }
+                        }
+                    }
+                }
         }
+    }
+
+    private fun layerSourceCodeCreate(
+        projectPath: String,
+        from: File,
+        exportPathList: List<Path>
+    ): List<() -> Unit> =
+        if (from.isDirectory) listOf()
+        else {
+            val layerName = sliceLastSlashAfter(from.parent.toString())
+            exportPathList.mapNotNull { to ->
+                if (!to.parent.toString().endsWith(layerName)) null
+                else {
+                    {
+                        val moduleName = getModuleName(to, projectPath)
+                        val domainName = sliceLastSlashAfter(moduleName)
+                        from.absolutePath
+                            .replace(
+                                "/moduleTemplate/layer",
+                                moduleName
+                            ).replace(
+                                """src/main/java/.+/""".toRegex(),
+                                "src/main/java/"
+                            ).replace(
+                                layerName.run(::toUpperCamel).plus(".kt"),
+                                toUpperCamel(domainName).plus(layerName.run(::toUpperCamel)).plus(".kt")
+                            ).run(::File)
+                            .run { sourceCodeFilePathAdapter(this, moduleName) }
+                            .run {
+                                createNewFile(from, this) { reader ->
+                                    reader.readLines().map {
+                                        it.replace("{Small}", domainName)
+                                            .replace("{Large}", toUpperCamel(domainName))
+                                    }
+                                }
+                            }
+                    }
+                }
+            }
+        }
+
+    private fun getModuleName(to: Path, projectPath: String): String = to
+        .toAbsolutePath().toString().removePrefix(projectPath)
+
+    private fun sliceLastSlashAfter(path: String): String = path
+        .substring(path.indexOfLast { it == '/' }).substring(1)
+
+    private fun toUpperCamel(source: String) = source.let {
+        (it.getOrNull(0)?.toUpperCase() ?: ' ')
+            .plus(it.substring(1)).trim()
     }
 
     private fun sourceCodeFilePathAdapter(
@@ -123,9 +186,13 @@ object ScaffoldExtension {
             Files.createDirectories(Paths.get(it.parent))
         }
 
-    private fun createNewFile(from: File, to: File, moduleName: String) {
+    private fun createNewFile(
+        from: File,
+        to: File,
+        editContent: (InputStreamReader) -> List<String>
+    ) {
         if (from.isFile) {
-            runCatching { Files.copy(decoratePackagePath(moduleName, from.path), to.toPath()) }
+            runCatching { Files.copy(decoratePackagePath(from.path, editContent), to.toPath()) }
                 .onSuccess { println("success createNewFile::${to.toPath()}") }
                 .onFailure { println("failure createNewFile::${to.toPath()}") }
         } else {
@@ -135,16 +202,14 @@ object ScaffoldExtension {
         }
     }
 
-    private fun decoratePackagePath(moduleName: String, path: String): InputStream = path
+    private fun decoratePackagePath(
+        path: String,
+        editContent: (InputStreamReader) -> List<String>
+    ): InputStream = path
         .run(::FileInputStream)
-        .run(::InputStreamReader).use { reader ->
-            reader.readLines().map {
-                if (!it.contains("jp.arsaga")) it
-                else moduleName
-                    .replace("/", ".")
-                    .run { it.replace("jp.arsaga", "jp.arsaga$this") }
-            }
-        }.joinToString("\n")
+        .run(::InputStreamReader)
+        .use { editContent(it) }
+        .joinToString("\n")
         .byteInputStream()
 
     private fun needProjectModuleList() = needModuleNameList().map {
