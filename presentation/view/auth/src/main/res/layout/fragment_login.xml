@@ -7,7 +7,7 @@
 
         <variable
             name="viewModel"
-            type="jp.arsaga.presentation.viewModel.auth.EntryViewModel" />
+            type="jp.arsaga.presentation.viewModel.auth.AuthViewModel" />
 
     </data>
 

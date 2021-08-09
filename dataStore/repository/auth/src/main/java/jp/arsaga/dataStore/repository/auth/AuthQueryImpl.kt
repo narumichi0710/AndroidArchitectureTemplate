@@ -5,15 +5,15 @@ import jp.arsaga.dataStore.gateway.local.SharedPreferenceController
 import jp.arsaga.dataStore.repository.core.EncryptedSharedPreferencesStore
 import jp.arsaga.dataStore.repository.core.EncryptedSharedPreferencesStore.Companion.getSharedPreferences
 import jp.arsaga.domain.entity.core.type.LocalDataKey
-import jp.arsaga.domain.useCase.auth.EntryUseCase
+import jp.arsaga.domain.useCase.auth.AuthUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class EntryQueryImpl(
+class AuthQueryImpl(
     private val context: Context,
     private val coroutineScope: CoroutineScope
-) : EntryUseCase.Query {
+) : AuthUseCase.Query {
 
     override fun queryLocalCacheData(
         localDataKey: LocalDataKey<String?>,

@@ -6,15 +6,15 @@ import jp.arsaga.dataStore.repository.core.EncryptedSharedPreferencesStore
 import jp.arsaga.dataStore.repository.core.EncryptedSharedPreferencesStore.Companion.getSharedPreferences
 import jp.arsaga.dataStore.repository.core.TransitionCallbackHandler
 import jp.arsaga.domain.entity.core.type.LocalDataKey
-import jp.arsaga.domain.useCase.auth.EntryUseCase
+import jp.arsaga.domain.useCase.auth.AuthUseCase
 import jp.arsaga.domain.useCase.core.ActivityCallback
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 
-class EntryCommandImpl(
+class AuthCommandImpl(
     private val context: Context,
     private val coroutineScope: CoroutineScope
-) : EntryUseCase.Command<ActivityCallback> {
+) : AuthUseCase.Command<ActivityCallback> {
 
     private val reactiveLocalDataSaver = mutableSetOf<ReactiveLocalDataSaver<*>>()
 

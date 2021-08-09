@@ -6,7 +6,7 @@
 
     <fragment
         android:id="@+id/loginFragment"
-        android:name="jp.arsaga.presentation.view.auth.fragment.LoginFragment"
+        android:name="jp.arsaga.presentation.view.auth.fragment.AuthFragment"
         android:label="LoginFragment" >
         <action
             android:id="@+id/action_loginFragment_to_mainActivity"

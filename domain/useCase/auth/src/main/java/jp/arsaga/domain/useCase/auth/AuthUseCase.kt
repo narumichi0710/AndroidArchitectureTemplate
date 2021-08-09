@@ -6,9 +6,9 @@ import jp.arsaga.domain.entity.core.type.LocalDataKey
 import jp.arsaga.domain.useCase.core.BaseUseCase
 import kotlinx.coroutines.flow.Flow
 
-class EntryUseCase<NavCallback>(
+class AuthUseCase<NavCallback>(
     override val dependency: Dependency<NavCallback>
-) : BaseUseCase<EntryUseCase.Dependency<NavCallback>>  {
+) : BaseUseCase<AuthUseCase.Dependency<NavCallback>>  {
 
     val loginIdInput = MutableLiveData("").apply {
         dependency.query.queryLocalCacheData(LocalDataKey.String.Password) {
