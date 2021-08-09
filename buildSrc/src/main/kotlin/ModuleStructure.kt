@@ -87,14 +87,6 @@ object ModuleStructure {
         moduleType: ProjectModule.Type
     ) = project.dependencies.apply {
         when (moduleType) {
-            // 特定のドメインに属するモジュール(主にここの種類が増えていく)
-            ProjectModule.Type._presentation_view_auth,
-            ProjectModule.Type._presentation_viewModel_auth,
-            ProjectModule.Type._dataStore_repository_auth,
-            ProjectModule.Type._domain_useCase_auth,
-            ProjectModule.Type._domain_entity_auth -> {
-                ModuleExtension.implDomainModule(this, moduleType)
-            }
             // 親モジュール
             ProjectModule.Type._app -> ModuleExtension.implAllModule(ProjectModule.Type._app) {
                 impl(it)
@@ -142,6 +134,9 @@ object ModuleStructure {
             ProjectModule.Type._extension_viewModel,
             ProjectModule.Type._extension_repository,
             ProjectModule.Type._extension_gateway -> {
+            }
+            else -> {
+                ModuleExtension.implDomainModule(this, moduleType)
             }
         }
     }
