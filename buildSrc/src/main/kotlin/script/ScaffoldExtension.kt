@@ -140,38 +140,60 @@ object ScaffoldExtension {
                 else {
                     {
                         val moduleName = getModuleName(to, projectPath)
-                        val domainName = sliceLastSlashAfter(moduleName)
                         from.absolutePath
                             .replace(
                                 "/moduleTemplate/layer",
                                 moduleName
-                            ).replace(
-                                """src/main/java/.+/""".toRegex(),
-                                "src/main/java/"
                             ).let {
-                                val templateFileName = it.substringAfterLast("/")
-                                it.replace(
-                                    templateFileName,
-                                    toUpperCamel(domainName).plus(templateFileName)
-                                )
-                            }.run(::File)
-                            .run { sourceCodeFilePathAdapter(this, moduleName) }
-                            .run {
-                                createNewFile(from, this) { reader ->
-                                    reader.readLines().map {
-                                        val pathString = moduleName
-                                            .run { substring(indexOf(layerName)) }
-                                            .replace("/", ".")
-                                            .removePrefix(layerName.plus("."))
-                                        it.replace("{Small}", pathString)
-                                            .replace("{Large}", toUpperCamel(domainName))
-                                    }
-                                }
+                                createLayerClass(from, it, moduleName, layerName)
                             }
                     }
                 }
             }
         }
+
+    private fun createLayerClass(
+        from: File,
+        toPath: String,
+        moduleName: String,
+        layerName: String
+    ) {
+        val domainName = sliceLastSlashAfter(moduleName)
+        convertLayerClassTemplatePath(toPath, domainName).run(::File)
+            .run { sourceCodeFilePathAdapter(this, moduleName) }
+            .run {
+                createNewFile(from, this) {
+                    decorateLayerClassTemplateFile(it, moduleName, layerName, domainName)
+                }
+            }
+    }
+
+    private fun convertLayerClassTemplatePath(absolutePath: String, domainName: String): String =
+        absolutePath
+            .replace(
+                """src/main/java/.+/""".toRegex(),
+                "src/main/java/"
+            ).let {
+                val templateFileName = it.substringAfterLast("/")
+                it.replace(
+                    templateFileName,
+                    toUpperCamel(domainName).plus(templateFileName)
+                )
+            }
+
+    private fun decorateLayerClassTemplateFile(
+        inputStreamReader: InputStreamReader,
+        moduleName: String,
+        layerName: String,
+        domainName: String
+    ): List<String> = inputStreamReader.readLines().map {
+        val pathString = moduleName
+            .run { substring(indexOf(layerName)) }
+            .replace("/", ".")
+            .removePrefix(layerName.plus("."))
+        it.replace("{Small}", pathString)
+            .replace("{Large}", toUpperCamel(domainName))
+    }
 
     private fun getModuleName(to: Path, projectPath: String): String = to
         .toAbsolutePath().toString().removePrefix(projectPath)
