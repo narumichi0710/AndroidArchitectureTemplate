@@ -100,7 +100,10 @@ object ScaffoldExtension {
                         .replace(
                             "moduleTemplate/base",
                             moduleName
-                        ).run(::File).run {
+                        ).run(::File).let {
+                            if (!it.parent.endsWith("/java")) it
+                            else File(it.path.replace("/java", "/java/jp/arsaga/$moduleName"))
+                        }.run {
                             if (from.isFile) {
                                 runCatching {
                                     Files.copy(
