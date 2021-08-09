@@ -72,7 +72,6 @@ object ScaffoldExtension {
         getAllNewDirectoryPathList(projectPath, increasedModuleNameList)
     )
 
-
     private fun getAllNewDirectoryPathList(
         projectPath: String,
         increasedModuleNameList: List<String>
@@ -99,7 +98,7 @@ object ScaffoldExtension {
                     val moduleName = to.toAbsolutePath().toString().removePrefix(projectPath)
                     from.absolutePath
                         .replace(
-                            "moduleTemplate",
+                            "moduleTemplate/base",
                             moduleName
                         ).run(::File).run {
                             if (from.isFile) {
