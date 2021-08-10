@@ -8,6 +8,9 @@ import kotlin.streams.toList
 
 object ScaffoldExtension {
 
+    /**
+     * 各モジュールがどのレイヤーにいるのか分類するプロパティ
+     */
     private val moduleLayerCategory = mapOf(
         "_presentation" to listOf(
             ModuleStructure.LayerType.view,
@@ -22,6 +25,9 @@ object ScaffoldExtension {
         )
     ).entries
 
+    /**
+     * settings.gradle.ktsから登録済みのモジュール名一覧を取得する関数(最初からあるもの以外は全て自動生成されている想定)
+     */
     fun settingModuleNameList(projectPath: String) = projectPath
         .run(::FileReader).buffered().use { reader ->
             reader.lines()?.filter { it.contains("include") }
@@ -29,6 +35,9 @@ object ScaffoldExtension {
                 ?.toList()
         }
 
+    /**
+     * 新たに追加されたモジュールをsettings.gradle.ktsに追記する関数
+     */
     fun updateSettingModule(
         projectPath: String,
         increasedModuleNameList: List<String>
@@ -41,6 +50,11 @@ object ScaffoldExtension {
         }
     }
 
+    /**
+     * モジュール間の関係性を表現するenumにモジュールを追加する関数
+     * core以外は全て自動生成されている想定で洗い替え方式で記入している
+     * ("//autoGen"のコメントをフラグにして変更管理している)
+     */
     fun updateProjectModuleType(
         projectModuleTypeDirectoryPath: String
     ) {
@@ -57,12 +71,20 @@ object ScaffoldExtension {
         }
     }
 
+    /**
+     * enumから算出された必要なモジュール一覧とsettings.gradle.ktsのモジュール一覧を比べて
+     * 足りていないモジュールのリストを算出する関数
+     */
     fun missingModuleNameList(
         settingGradleModuleNameList: List<String>
     ): List<String> = needModuleNameList()
         .map { it.name.replace("_", ":") }
         .filter { it !in settingGradleModuleNameList }
 
+    /**
+     * 新しいモジュールを作成する関数を返す関数
+     * 呼び出し元でcoroutineで並列実行するために直接実行するのではなく実行内容を返すように作ってある
+     */
     fun generateNewModule(
         projectPath: String,
         increasedModuleNameList: List<String>
@@ -72,6 +94,10 @@ object ScaffoldExtension {
         getAllNewDirectoryPathList(projectPath, increasedModuleNameList)
     )
 
+    /**
+     * 増やすべきモジュールのパス(String)のリストを元にディレクトリを作成し、
+     * Path型に変換してリストで返す関数
+     */
     private fun getAllNewDirectoryPathList(
         projectPath: String,
         increasedModuleNameList: List<String>
@@ -83,10 +109,16 @@ object ScaffoldExtension {
         }.getOrNull()
     }
 
+    /**
+     * テンプレートの元になるファイルが入っているディレクトリを返す関数
+     */
     private fun getTemplateDirectoryPathList(projectPath: String): File = projectPath
         .plus("/moduleTemplate")
         .run(::File)
 
+    /**
+     * テンプレートフォルダの中を再帰で走査して各テンプレートファイルをコピーする関数を実行する関する
+     */
     private fun allCopy(
         projectPath: String,
         templateDirectory: File,
@@ -101,6 +133,9 @@ object ScaffoldExtension {
         }
     }.toList()
 
+    /**
+     * 全階層で共通のファイルをテンプレートからコピーする関数
+     */
     private fun baseSourceCodeCreate(
         projectPath: String,
         from: File,
@@ -127,6 +162,10 @@ object ScaffoldExtension {
         }
     }
 
+    /**
+     * 各階層ごとに必要なファイルをテンプレートからコピーする関数を
+     * 全ドメインで実行する関数
+     */
     private fun layerSourceCodeCreate(
         projectPath: String,
         from: File,
@@ -152,6 +191,9 @@ object ScaffoldExtension {
             }
         }
 
+    /**
+     * 各階層で必要なファイルをコピーする関数
+     */
     private fun createLayerClass(
         from: File,
         toPath: String,
@@ -168,6 +210,10 @@ object ScaffoldExtension {
             }
     }
 
+    /**
+     * テンプレートフォルダのレイヤー毎に分類されているファイルのパスを
+     * 実際に各ドメインで使える形式に置換する関数
+     */
     private fun convertLayerClassTemplatePath(absolutePath: String, domainName: String): String =
         absolutePath
             .replace(
@@ -177,10 +223,13 @@ object ScaffoldExtension {
                 val templateFileName = it.substringAfterLast("/")
                 it.replace(
                     templateFileName,
-                    toUpperCamel(domainName).plus(templateFileName)
+                    domainName.capitalize().plus(templateFileName)
                 )
             }
 
+    /**
+     * 各階層ごとのテンプレートファイル内の埋め込み文字を置換する関数
+     */
     private fun decorateLayerClassTemplateFile(
         inputStreamReader: InputStreamReader,
         moduleName: String,
@@ -192,20 +241,25 @@ object ScaffoldExtension {
             .replace("/", ".")
             .removePrefix(layerName.plus("."))
         it.replace("{Small}", pathString)
-            .replace("{Large}", toUpperCamel(domainName))
+            .replace("{Large}", domainName.capitalize())
     }
 
+    /**
+     * コピー先のパスからモジュールの名前を算出する関数
+     */
     private fun getModuleName(to: Path, projectPath: String): String = to
         .toAbsolutePath().toString().removePrefix(projectPath)
 
+    /**
+     * パスから最後の「/」以降の文字列を算出する関数
+     */
     private fun sliceLastSlashAfter(path: String): String = path
         .substring(path.indexOfLast { it == '/' }).substring(1)
 
-    private fun toUpperCamel(source: String) = source.let {
-        (it.getOrNull(0)?.toUpperCase() ?: ' ')
-            .plus(it.substring(1)).trim()
-    }
-
+    /**
+     * 「/java」パス配下のファイルをコピーする時のみ
+     * 共通文言とモジュール名とを付加してパス被りを防ぐ関数
+     */
     private fun sourceCodeFilePathAdapter(
         file: File,
         moduleName: String
@@ -215,6 +269,9 @@ object ScaffoldExtension {
             Files.createDirectories(Paths.get(it.parent))
         }
 
+    /**
+     * ファイルもしくはディレクトリを出力し、その結果をログに出す関数
+     */
     private fun createNewFile(
         from: File,
         to: File,
@@ -231,6 +288,9 @@ object ScaffoldExtension {
         }
     }
 
+    /**
+     * 受け取ったパスのファイルを引数のラムダに基づいて編集してからInputStreamで返す関数
+     */
     private fun decorateTemplateFile(
         path: String,
         editContent: (InputStreamReader) -> List<String>
@@ -241,7 +301,11 @@ object ScaffoldExtension {
         .joinToString("\n")
         .byteInputStream()
 
-    private fun needProjectModuleList() = needModuleNameList().map {
+    /**
+     * プロジェクトのモジュール一覧のenumクラスに実装する
+     * enumの実装コードそのものを文字列として出力する関数
+     */
+    private fun needProjectModuleList(): List<String> = needModuleNameList().map {
         StringBuilder()
             .append("        ")
             .append(it.name)
@@ -255,6 +319,9 @@ object ScaffoldExtension {
             .replace("$", ".")
     }
 
+    /**
+     * enumの組み合わせから必要なモジュールを算出する関数
+     */
     private fun needModuleNameList(): List<ProjectModule.Entity> =
         ModuleStructure.DomainType.values().flatMap { domain ->
             ModuleStructure.LayerType.values().mapNotNull { layer ->
