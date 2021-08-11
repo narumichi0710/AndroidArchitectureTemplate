@@ -23,7 +23,7 @@ object ProjectProperty {
      * FlavorType一覧
      */
     internal enum class FlavorType {
-        prod, stg, dev
+        prod, stg, dev, mock
     }
 
     /**
