@@ -95,6 +95,7 @@ subprojects {
                         break
 
                     case ":dataStore:gateway:server":
+                        mockImplementation "com.squareup.retrofit2:retrofit-mock:$retrofit_version"
                         implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:$serialization_version"
                         implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:$serialization_converter_version")
                         break
