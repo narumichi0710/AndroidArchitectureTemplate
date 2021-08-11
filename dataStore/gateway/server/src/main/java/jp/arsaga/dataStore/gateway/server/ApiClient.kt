@@ -2,6 +2,7 @@ package jp.arsaga.dataStore.gateway.server
 
 import jp.co.arsaga.extensions.gateway.AbstractApiClient
 import retrofit2.Converter
+import retrofitApiProvider
 
 object ApiClient : AbstractApiClient<IApiType>() {
     override val baseUrl: String = BuildConfig.BASE_URL
@@ -13,5 +14,5 @@ object ApiClient : AbstractApiClient<IApiType>() {
     override val jsonConverterFactory: Converter.Factory = JsonConverter.factory
 
     override val retrofitApi: IApiType = retrofitApiBuilder
-        .create(IApiType::class.java)
+        .run(::retrofitApiProvider)
 }
