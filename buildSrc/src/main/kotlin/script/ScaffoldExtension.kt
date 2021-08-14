@@ -61,7 +61,7 @@ object ScaffoldExtension {
         val newProjectModuleContents = projectModuleTypeDirectoryPath
             .run(::FileReader).buffered().use { reader ->
                 reader.readLines().toMutableList().also { codeList ->
-                    codeList.removeIf { it.contains("//autoGen") }
+                    codeList.removeIf { it.contains("CreateType.AUTO") }
                     codeList.indexOfFirst { it.contains(";") }
                         .run { codeList.addAll(this, needProjectModuleList()) }
                 }
@@ -313,8 +313,9 @@ object ScaffoldExtension {
             .append(it.layerType.javaClass.name + "." + it.layerType.name)
             .append(", ")
             .append(it.domainType.javaClass.name + "." + it.domainType.name)
+            .append(", ")
+            .append("CreateType.AUTO")
             .append("),")
-            .append(" //autoGen")
             .toString()
             .replace("$", ".")
     }
