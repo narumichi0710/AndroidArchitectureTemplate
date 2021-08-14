@@ -36,11 +36,14 @@ object ModuleExtension {
     ) {
         if (isUnnecessaryImplModule(moduleType)) return
         val needLayerModuleList = filteringNeedLayer(moduleType)
-        ProjectModule.Type.values()
-            .filter { it.domainType == moduleType.domainType && it.layerType in needLayerModuleList }
-            .forEach {
-                dependencyHandler.impl(it)
-            }
+        ProjectModule.Type.values().filter {
+            it.layerType in needLayerModuleList && (
+                    it.domainType == moduleType.domainType
+                            || it.domainType?.name?.startsWith(moduleType.domainType?.name ?: "") == true
+                    )
+        }.forEach {
+            dependencyHandler.impl(it)
+        }
         sameLayerCoreModule(moduleType)?.let {
             dependencyHandler.api(it)
         }
