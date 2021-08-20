@@ -113,9 +113,6 @@ object ModuleStructure {
                 api(ProjectModule.Type._extension_repository)
                 api(ProjectModule.Type._extension_gateway)
             }
-            ProjectModule.Type._domain_useCase_core -> {
-                api(ProjectModule.Type._domain_entity_core)
-            }
             // gatewayモジュール
             ProjectModule.Type._dataStore_gateway_sdk -> {
             }

@@ -36,15 +36,12 @@ object ModuleExtension {
     ) {
         if (isUnnecessaryImplModule(moduleType)) return
         val needLayerModuleList = filteringNeedLayer(moduleType)
-        ProjectModule.Type.values().filter {
-            it.layerType in needLayerModuleList && (
-                    it.domainType == moduleType.domainType
-                            || it.domainType?.name?.startsWith(moduleType.domainType?.name ?: "") == true
-                    )
-        }.forEach {
-            dependencyHandler.impl(it)
-        }
-        sameLayerCoreModule(moduleType)?.let {
+        ProjectModule.Type.values()
+            .filter { it.domainType == moduleType.domainType && it.layerType in needLayerModuleList }
+            .forEach {
+                dependencyHandler.impl(it)
+            }
+        sameLayerCoreModule(moduleType).forEach {
             dependencyHandler.api(it)
         }
     }
@@ -54,7 +51,7 @@ object ModuleExtension {
      */
     private fun isUnnecessaryImplModule(
         moduleType: ProjectModule.Type
-    ): Boolean = moduleType.domainType in listOf(null, ModuleStructure.DomainType.core)
+    ): Boolean = moduleType.domainType in listOf(null)
 
     /**
      * 渡されたモジュールのレイヤーに必要とされるレイヤーのリストをアーキテクチャ構成図にしたがって返す
@@ -87,8 +84,12 @@ object ModuleExtension {
 
     private fun sameLayerCoreModule(
         moduleType: ProjectModule.Type
-    ): ProjectModule.Type? = ProjectModule.Type.values()
-        .find { it.domainType == ModuleStructure.DomainType.core && it.layerType == moduleType.layerType }
+    ): List<ProjectModule.Type> = ProjectModule.Type.values()
+        .filter {
+            it.name.endsWith("_core") &&
+                    moduleType != it &&
+                    moduleType.name.startsWith(it.name.substringBefore("_core"))
+        }
 
     private fun convertEnumName(project: Project): String = project.path
         .replace(":", "_")
