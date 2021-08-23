@@ -41,6 +41,9 @@ object ModuleExtension {
             .forEach {
                 dependencyHandler.impl(it)
             }
+        sameLayerChildModule(moduleType).forEach {
+            dependencyHandler.api(it)
+        }
         sameLayerCoreModule(moduleType).forEach {
             dependencyHandler.api(it)
         }
@@ -89,6 +92,14 @@ object ModuleExtension {
             it.name.endsWith("_core") &&
                     moduleType != it &&
                     moduleType.name.startsWith(it.name.substringBefore("_core"))
+        }
+
+    private fun sameLayerChildModule(
+        moduleType: ProjectModule.Type
+    ): List<ProjectModule.Type> = ProjectModule.Type.values()
+        .filter {
+            moduleType != it &&
+                    it.name.startsWith(moduleType.name)
         }
 
     private fun convertEnumName(project: Project): String = project.path
