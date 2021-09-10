@@ -1,6 +1,9 @@
+import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
+import com.android.build.gradle.BaseExtension
+import com.android.build.api.dsl.ApplicationVariantDimension
 
 android {
     defaultConfig {
@@ -8,6 +11,31 @@ android {
         applicationId = ProjectProperty.APPLICATION_ID
     }
     script.StaticScript.baseExtension(this, true, project)
+    buildTypes {
+        getByName(ProjectProperty.BuildTypeType.release.name) {
+            signing(this@android, this)
+        }
+    }
+}
+
+fun signing(
+    baseExtension: BaseExtension,
+    applicationVariant: ApplicationVariantDimension
+) {
+    baseExtension.signingConfigs {
+        val localProperties = gradleLocalProperties(rootDir)
+        create(ProjectProperty.BuildTypeType.release.name) {
+            storeFile = file("../keystore.jks")
+            storePassword = localProperties
+                .getProperty(ProjectProperty.LocalVariantType.ANDROID_STORE_PASSWORD.name)
+            keyPassword = localProperties
+                .getProperty(ProjectProperty.LocalVariantType.ANDROID_KEY_PASSWORD.name)
+            keyAlias = localProperties
+                .getProperty(ProjectProperty.LocalVariantType.ANDROID_KEY_ALIAS.name)
+        }
+    }
+    applicationVariant.signingConfig = baseExtension
+        .signingConfigs.getByName(ProjectProperty.BuildTypeType.release.name)
 }
 
 plugins {

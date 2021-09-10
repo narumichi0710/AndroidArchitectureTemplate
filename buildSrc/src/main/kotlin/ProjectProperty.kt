@@ -15,8 +15,8 @@ object ProjectProperty {
     /**
      * CIやgradle.propertiesからのビルド環境変数名のタイプ一覧
      */
-    internal enum class BuildVariantType {
-        ANDROID_KEY_PASSWORD, ANDROID_STORE_PASSWORD, ANDROID_KEYSTORE_FILE_PATH
+    enum class LocalVariantType {
+        ANDROID_KEY_PASSWORD, ANDROID_STORE_PASSWORD, ANDROID_KEY_ALIAS
     }
 
     /**

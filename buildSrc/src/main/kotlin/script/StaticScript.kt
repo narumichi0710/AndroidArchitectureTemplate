@@ -5,9 +5,7 @@ import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.internal.dsl.BaseFlavor
 import com.android.build.gradle.internal.dsl.DefaultConfig
 import com.android.build.gradle.internal.dsl.BuildType
-import com.android.build.gradle.internal.dsl.ProductFlavor
 import org.gradle.api.*
-import java.io.File
 import java.util.*
 
 /**
@@ -81,19 +79,14 @@ object StaticScript {
         productFlavors {
             ProjectProperty.FlavorType.values().forEach { flavorType ->
                 create(flavorType.name) {
+                    if (isRoot && flavorType != ProjectProperty.FlavorType.prod) {
+                        applicationIdSuffix = flavorType.name
+                    }
                     buildTypes {
                         ProjectProperty.BuildTypeType.values().forEach { buildTypeType ->
                             executeBuildType(isRoot, baseExtension, this, flavorType, buildTypeType)
                             executeBuildConfig(this@create, flavorType, buildTypeType)
                             executeManifestPlaceHolder(baseExtension, flavorType, buildTypeType)
-                            executeSigningConfigs(
-                                isRoot,
-                                baseExtension,
-                                project,
-                                this@create,
-                                flavorType,
-                                buildTypeType
-                            )
                         }
                     }
                 }
@@ -129,12 +122,10 @@ object StaticScript {
             } else {
                 debugBuildSetting(baseExtension, this)
             }
-            if (isRoot && flavorType != ProjectProperty.FlavorType.prod) {
-                applicationIdSuffix = flavorType.name
-            }
         }.let {
             if (buildTypeType in defaultExistBuildType) getByName(buildTypeType.name, it)
-            else create(buildTypeType.name, it)
+            else runCatching { create(buildTypeType.name, it) }
+                .getOrElse { _ -> getByName(buildTypeType.name, it) }
         }
     }
 
@@ -163,60 +154,12 @@ object StaticScript {
         baseExtension: BaseExtension,
         buildType: BuildType
     ) = buildType.apply {
+        signingConfig = baseExtension.signingConfigs.getByName("debug")
         baseExtension.splits {
             abi.isEnable = false
             density.isEnable = false
         }
     }
-
-    private const val SIGNING_KEY = "release"
-
-    /**
-     * SigningConfigsの設定。
-     * パスワードは環境変数から取得し、KeystoreはBase64エンコードされた文字列をCIのシークレットに保存し、
-     * ビルドのたびにデコードしてファイル化するようにする。
-     */
-    private fun executeSigningConfigs(
-        isRoot: Boolean,
-        baseExtension: BaseExtension,
-        project: Project?,
-        productFlavor: ProductFlavor,
-        flavorType: ProjectProperty.FlavorType,
-        buildTypeType: ProjectProperty.BuildTypeType
-    ) {
-        if (
-            isRoot && project != null &&
-            flavorType == ProjectProperty.FlavorType.prod &&
-            buildTypeType == ProjectProperty.BuildTypeType.release
-        ) baseExtension.signingConfigs {
-            create(SIGNING_KEY) {
-                keyAlias = SIGNING_KEY
-                keyPassword = getConfigValue(
-                    project,
-                    ProjectProperty.BuildVariantType.ANDROID_KEY_PASSWORD.name
-                )
-                storePassword = getConfigValue(
-                    project,
-                    ProjectProperty.BuildVariantType.ANDROID_STORE_PASSWORD.name
-                )
-                storeFile = getConfigValue(
-                    project,
-                    ProjectProperty.BuildVariantType.ANDROID_KEYSTORE_FILE_PATH.name
-                )?.let { File(it) }
-            }
-            productFlavor.signingConfig = baseExtension.signingConfigs.getAt(SIGNING_KEY)
-        }
-    }
-
-    /**
-     * local.propertiesもしくはCIの環境変数からキーの値のStringを取得するための関数
-     */
-    private fun getConfigValue(
-        project: Project,
-        key: String
-    ): String? = runCatching { project.properties[key] as String }
-        .recover { System.getenv(key) }
-        .getOrNull()
 
     /**
      * ManifestPlaceHolderTypeからManifestPlaceHolderに値を設定する
