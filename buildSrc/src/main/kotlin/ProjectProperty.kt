@@ -23,7 +23,7 @@ object ProjectProperty {
      * FlavorType一覧
      */
     internal enum class FlavorType {
-        prod, stg, dev, mock
+        prod, stg, dev
     }
 
     /**
@@ -31,7 +31,8 @@ object ProjectProperty {
      * ラムダにはビルドタイプ毎に実行したいコードが書ける
      */
     //FIXME:できればかっこいい名前にしたい
-    internal enum class BuildTypeType(val action: (BuildType, FlavorType) -> Unit) {
+    enum class BuildTypeType(val action: (BuildType, FlavorType) -> Unit) {
+        mock({ _, _ -> }),
         debug({ _, _ -> }),
         release({ _, _ -> })
     }
