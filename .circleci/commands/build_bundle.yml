@@ -1,0 +1,7 @@
+steps:
+  - run:
+      name: Build Bundle
+      command: |
+        ./gradlew clean
+        ./gradlew --stop
+        ./gradlew "bundle${ENV[@]~}Release" --max-workers 1

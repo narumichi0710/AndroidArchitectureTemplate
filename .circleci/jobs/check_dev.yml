@@ -1,0 +1,5 @@
+executor: android
+environment:
+  MERGE_BRANCH: develop
+steps:
+  - check_merge_branch

@@ -1,0 +1,263 @@
+commands:
+    build_apk:
+        steps:
+            - run:
+                command: |
+                    ./gradlew clean
+                    ./gradlew --stop
+                    ./gradlew "assemble${ENV[@]~}Release" --max-workers 1
+                name: Build Apk
+    build_bundle:
+        steps:
+            - run:
+                command: |-
+                    ./gradlew clean
+                    ./gradlew --stop
+                    ./gradlew "bundle${ENV[@]~}Release" --max-workers 1
+                name: Build Bundle
+    check_merge_branch:
+        steps:
+            - jq/install
+            - run:
+                command: |
+                    PULL_REQUEST_NUMBER=`echo ${CIRCLE_PULL_REQUEST} | grep -o [0-9]*$`
+                    PROJECT_NAME=`echo ${CIRCLE_REPOSITORY_URL}  \
+                      | sed -e "s/git@github.com://" | sed -e "s/.git//"`
+                    BASE_BRANCH=`curl -u ${GITHUB_PERSONAL_ACCESS_TOKEN}  \
+                    -ks https://api.github.com/repos/${PROJECT_NAME}/pulls/${PULL_REQUEST_NUMBER}  \
+                    | jq -r .base.ref`
+                    echo BASE_BRANCH ${BASE_BRANCH}
+                    echo MERGE_BRANCH ${MERGE_BRANCH}
+                    if [ ${BASE_BRANCH} != ${MERGE_BRANCH} ]; then
+                      exit 1
+                    fi
+                name: Check Branch
+    checkout_submodule:
+        steps:
+            - checkout
+            - run:
+                command: |
+                    git submodule init
+                    git submodule update
+                name: Checkout Submodule
+    decode_keystore:
+        steps:
+            - run:
+                command: |
+                    echo $ENCODED_DEBUG_KEYSTORE | base64 --decode > keystore.jks
+                name: Decode KeyStore
+    decode_local_properties:
+        steps:
+            - run:
+                command: |
+                    echo $ENCODED_LOCAL_PROPERTIES | base64 --decode > local.properties
+                name: Decode local.properties
+    deploy:
+        steps:
+            - run:
+                command: |
+                    curl -sL firebase.tools | bash
+            - jq/install
+            - run:
+                command: |
+                    PROJECT_NAME=`echo ${CIRCLE_REPOSITORY_URL}  \
+                      | sed -e "s/git@github.com://" | sed -e "s/.git//"`
+                    echo Log::PROJECT_NAME:${PROJECT_NAME}
+                    RELEASE_NOTE=`curl -u ${GITHUB_PERSONAL_ACCESS_TOKEN} \
+                      -ks https://api.github.com/repos/${PROJECT_NAME}/commits?per_page=1  \
+                      | jq -r .[].commit.message`
+                    echo Log::RELEASE_NOTE:${RELEASE_NOTE}
+                    APP_ID=`cat app/src/${ENV}/google-services.json | jq -r '.client[].client_info.mobilesdk_app_id'`
+                    echo Log::APP_ID:${APP_ID}::RELEASE_NOTE:${RELEASE_NOTE}
+                    firebase appdistribution:distribute ./app/build/outputs/apk/${ENV}/release/app-${ENV}-release.apk  \
+                    --app ${APP_ID}  \
+                    --token ${FIREBASE_AUTH_TOKEN}  \
+                    --testers "${SLACK_RELATION_MAILADRESS}"  \
+                    --release-notes "${RELEASE_NOTE}"  \
+                name: Deploy
+    deploy_flow:
+        steps:
+            - checkout_submodule
+            - decode_keystore
+            - decode_local_properties
+            - build_apk
+            - deploy
+    merge_pull_request:
+        steps:
+            - run:
+                command: |
+                    PULL_REQUEST_NUMBER=`echo ${CIRCLE_PULL_REQUEST} | grep -o [0-9]*$`
+                    echo PULL_REQUEST_NUMBER:${PULL_REQUEST_NUMBER}
+                    PROJECT_NAME=`echo ${CIRCLE_REPOSITORY_URL}  \
+                      | sed -e "s/git@github.com://" | sed -e "s/.git//"`
+                    RELEASE_NOTE=`curl -u ${GITHUB_PERSONAL_ACCESS_TOKEN}  \
+                      -ks https://api.github.com/repos/${PROJECT_NAME}/pulls/${PULL_REQUEST_NUMBER}  \
+                      | jq -r .title`
+                    echo RELEASE_NOTE:${RELEASE_NOTE}
+                    curl -u ${GITHUB_PERSONAL_ACCESS_TOKEN}  \
+                      -X PUT \
+                      -H "Accept: application/vnd.github.v3+json" \
+                      -ks https://api.github.com/repos/${PROJECT_NAME}/pulls/${PULL_REQUEST_NUMBER}/merge \
+                      -d '{"commit_title":"${RELEASE_NOTE}"}'
+                name: Merge Pull Request
+    test_apk:
+        steps:
+            - run:
+                command: |-
+                    ./gradlew clean
+                    ./gradlew --stop
+                    ./gradlew "test${ENV[@]~}ReleaseUnitTest"  --max-workers 1
+                name: Test Apk
+    test_flow:
+        steps:
+            - checkout_submodule
+            - decode_keystore
+            - decode_local_properties
+            - test_apk
+            - merge_pull_request
+executors:
+    android:
+        docker:
+            - image: circleci/android:api-30
+        environment:
+            GRADLE_OPTS: ' -Dorg.gradle.daemon=false -Dorg.gradle.jvmargs="-Xmx1536m -XX:+HeapDumpOnOutOfMemoryError" -Dkotlin.compiler.execution.strategy=in-process -Dkotlin.incremental=false '
+            JVM_OPTS: -Xmx1536m
+    circleci-cli:
+        docker:
+            - image: circleci/circleci-cli:alpine
+        resource_class: small
+jobs:
+    check_circleci:
+        executor: circleci-cli
+        steps:
+            - checkout
+            - run:
+                command: circleci config --skip-update-check pack .circleci/ > .circleci/config.yml
+                name: Pack CircleCI config
+            - run:
+                command: |-
+                    DIFF="$(git --no-pager diff .circleci/config.yml)"
+                    if [[ -n "$DIFF" ]]; then
+                      echo ".circleci/config.yml was changed after packing. Run" 1>&2
+                      echo "    circleci config pack .circleci > .circleci/config.yml" 1>&2
+                      echo "and commit your changes to fix this error" 1>&2
+                      echo "Diff:" 1>&2
+                      echo "$DIFF" 1>&2
+                      exit 1
+                    fi
+                name: Verify CircleCI was already packed
+    check_dev:
+        environment:
+            MERGE_BRANCH: develop
+        executor: android
+        steps:
+            - check_merge_branch
+    check_prod:
+        environment:
+            MERGE_BRANCH: master
+        executor: android
+        steps:
+            - check_merge_branch
+    check_stg:
+        environment:
+            MERGE_BRANCH: staging
+        executor: android
+        steps:
+            - check_merge_branch
+    deploy_dev:
+        environment:
+            ENV: dev
+        executor: android
+        steps:
+            - deploy_flow
+    deploy_prod:
+        environment:
+            ENV: prod
+        executor: android
+        steps:
+            - deploy_flow
+    deploy_stg:
+        environment:
+            ENV: stg
+        executor: android
+        steps:
+            - deploy_flow
+    merge_dev:
+        environment:
+            ENV: dev
+        executor: android
+        steps:
+            - test_flow
+    merge_prod:
+        environment:
+            ENV: prod
+        executor: android
+        steps:
+            - test_flow
+    merge_stg:
+        environment:
+            ENV: stg
+        executor: android
+        steps:
+            - test_flow
+orbs:
+    android: circleci/android@1.0.3
+    gcp-cli: circleci/gcp-cli@2.2.0
+    jq: circleci/jq@2.2.0
+version: 2.1
+workflows:
+    merge_and_deploy:
+        jobs:
+            - check_circleci:
+                filters:
+                    branches:
+                        ignore:
+                            - develop
+                            - staging
+                            - master
+            - check_dev:
+                requires:
+                    - check_circleci
+            - check_stg:
+                requires:
+                    - check_circleci
+            - check_prod:
+                requires:
+                    - check_circleci
+            - approval_dev:
+                requires:
+                    - check_dev
+                type: approval
+            - approval_stg:
+                requires:
+                    - check_stg
+                type: approval
+            - approval_prod:
+                requires:
+                    - check_prod
+                type: approval
+            - merge_dev:
+                requires:
+                    - approval_dev
+            - merge_stg:
+                requires:
+                    - approval_stg
+            - merge_prod:
+                requires:
+                    - approval_prod
+            - deploy_dev:
+                filters:
+                    branches:
+                        only:
+                            - develop
+            - deploy_stg:
+                filters:
+                    branches:
+                        only:
+                            - staging
+            - deploy_prod:
+                filters:
+                    branches:
+                        only:
+                            - master
+

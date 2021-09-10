@@ -1,0 +1,5 @@
+executor: android
+environment:
+  ENV: stg
+steps:
+  - deploy_flow

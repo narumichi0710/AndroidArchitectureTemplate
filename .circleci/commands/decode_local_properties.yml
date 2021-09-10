@@ -1,0 +1,5 @@
+steps:
+  - run:
+      name: Decode local.properties
+      command: |
+        echo $ENCODED_LOCAL_PROPERTIES | base64 --decode > local.properties

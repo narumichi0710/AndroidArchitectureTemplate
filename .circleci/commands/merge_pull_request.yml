@@ -1,0 +1,17 @@
+steps:
+  - run:
+      name: Merge Pull Request
+      command: |
+        PULL_REQUEST_NUMBER=`echo ${CIRCLE_PULL_REQUEST} | grep -o [0-9]*$`
+        echo PULL_REQUEST_NUMBER:${PULL_REQUEST_NUMBER}
+        PROJECT_NAME=`echo ${CIRCLE_REPOSITORY_URL}  \
+          | sed -e "s/git@github.com://" | sed -e "s/.git//"`
+        RELEASE_NOTE=`curl -u ${GITHUB_PERSONAL_ACCESS_TOKEN}  \
+          -ks https://api.github.com/repos/${PROJECT_NAME}/pulls/${PULL_REQUEST_NUMBER}  \
+          | jq -r .title`
+        echo RELEASE_NOTE:${RELEASE_NOTE}
+        curl -u ${GITHUB_PERSONAL_ACCESS_TOKEN}  \
+          -X PUT \
+          -H "Accept: application/vnd.github.v3+json" \
+          -ks https://api.github.com/repos/${PROJECT_NAME}/pulls/${PULL_REQUEST_NUMBER}/merge \
+          -d '{"commit_title":"${RELEASE_NOTE}"}'

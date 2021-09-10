@@ -1,0 +1,5 @@
+executor: android
+environment:
+  ENV: prod
+steps:
+  - test_flow

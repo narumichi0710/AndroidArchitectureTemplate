@@ -1,0 +1,7 @@
+steps:
+  - run:
+      name: Build Apk
+      command: |
+        ./gradlew clean
+        ./gradlew --stop
+        ./gradlew "assemble${ENV[@]~}Release" --max-workers 1

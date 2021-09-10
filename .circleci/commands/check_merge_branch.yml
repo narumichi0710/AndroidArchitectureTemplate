@@ -1,0 +1,16 @@
+steps:
+  - jq/install
+  - run:
+      name: Check Branch
+      command: |
+        PULL_REQUEST_NUMBER=`echo ${CIRCLE_PULL_REQUEST} | grep -o [0-9]*$`
+        PROJECT_NAME=`echo ${CIRCLE_REPOSITORY_URL}  \
+          | sed -e "s/git@github.com://" | sed -e "s/.git//"`
+        BASE_BRANCH=`curl -u ${GITHUB_PERSONAL_ACCESS_TOKEN}  \
+        -ks https://api.github.com/repos/${PROJECT_NAME}/pulls/${PULL_REQUEST_NUMBER}  \
+        | jq -r .base.ref`
+        echo BASE_BRANCH ${BASE_BRANCH}
+        echo MERGE_BRANCH ${MERGE_BRANCH}
+        if [ ${BASE_BRANCH} != ${MERGE_BRANCH} ]; then
+          exit 1
+        fi

@@ -1,0 +1,57 @@
+jobs:
+  - check_circleci:
+      filters:
+        branches:
+          ignore:
+            - develop
+            - staging
+            - master
+
+  - check_dev:
+      requires:
+        - check_circleci
+  - check_stg:
+      requires:
+        - check_circleci
+  - check_prod:
+      requires:
+        - check_circleci
+
+  - approval_dev:
+      requires:
+        - check_dev
+      type: approval
+  - approval_stg:
+      requires:
+        - check_stg
+      type: approval
+  - approval_prod:
+      requires:
+        - check_prod
+      type: approval
+
+  - merge_dev:
+      requires:
+        - approval_dev
+  - merge_stg:
+      requires:
+        - approval_stg
+  - merge_prod:
+      requires:
+        - approval_prod
+
+  - deploy_dev:
+      filters:
+        branches:
+          only:
+            - develop
+  - deploy_stg:
+      filters:
+        branches:
+          only:
+            - staging
+  - deploy_prod:
+      filters:
+        branches:
+          only:
+            - master
