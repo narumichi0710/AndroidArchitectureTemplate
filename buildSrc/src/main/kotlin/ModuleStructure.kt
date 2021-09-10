@@ -110,7 +110,6 @@ object ModuleStructure {
                 api(ProjectModule.Type._dataStore_gateway_sdk)
                 api(ProjectModule.Type._dataStore_gateway_server)
                 api(ProjectModule.Type._domain_useCase_core)
-                api(ProjectModule.Type._extension_repository)
                 api(ProjectModule.Type._extension_gateway)
             }
             // gatewayモジュール
@@ -125,8 +124,10 @@ object ModuleStructure {
                     api(it)
                 }
             }
+            ProjectModule.Type._domain_entity_core -> {
+                api(ProjectModule.Type._extension_repository)
+            }
             // 依存モジュールを持たないもの
-            ProjectModule.Type._domain_entity_core,
             ProjectModule.Type._extension_view,
             ProjectModule.Type._extension_viewModel,
             ProjectModule.Type._extension_repository,
