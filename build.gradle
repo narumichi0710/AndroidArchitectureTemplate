@@ -45,6 +45,21 @@ buildscript {
 subprojects {
     afterEvaluate { subProject ->
         if (subProject.hasProperty('android')) {
+            try {
+                android {
+                    flavorDimensions "environment"
+                    buildTypes {
+                        create("mock") {}
+                    }
+                    productFlavors {
+                        create("dev") {}
+                        create("stg") {}
+                        create("prod") {}
+                    }
+                }
+            } catch (Exception e) {
+            }
+
             dependencies {
 
                 implementation "com.jakewharton.timber:timber:$timber_version"
@@ -107,7 +122,7 @@ subprojects {
                     case ":extension:gateway":
                         dependencies {
                             implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
-                            implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
+                            api "com.squareup.retrofit2:retrofit:$retrofit_version"
                             implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
                             implementation "com.squareup.okhttp3:logging-interceptor:$okhttp_version"
                         }
@@ -117,11 +132,11 @@ subprojects {
 
             android {
                 def version = new Version()
-                compileSdkVersion 30
+                compileSdkVersion 31
                 defaultConfig {
                     versionCode = version.code
                     versionName = version.name
-                    targetSdkVersion 30
+                    targetSdkVersion 31
                     buildConfigField("String", "APP_VERSION", "\"" + versionName + "\"")
                 }
                 kotlinOptions {

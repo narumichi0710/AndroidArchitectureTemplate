@@ -15,7 +15,7 @@ abstract class BaseViewModel<Dependency>(
         private val factory: () -> VM
     ) : ViewModelProvider.NewInstanceFactory() {
         @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel?> create(modelClass: Class<T>) = factory() as T
+        override fun <T : ViewModel> create(modelClass: Class<T>) = factory() as T
     }
 }
 

@@ -7,7 +7,6 @@ import com.android.build.api.dsl.ApplicationVariantDimension
 
 android {
     defaultConfig {
-        setCompileSdkVersion(30)
         applicationId = ProjectProperty.APPLICATION_ID
     }
     script.StaticScript.baseExtension(this, true, project)
