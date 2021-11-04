@@ -14,6 +14,7 @@ object ScaffoldExtension {
     private val moduleLayerCategory = mapOf(
         "_presentation" to listOf(
             ModuleStructure.LayerType.view,
+            ModuleStructure.LayerType.layout,
             ModuleStructure.LayerType.viewModel,
         ),
         "_dataStore" to listOf(

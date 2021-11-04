@@ -10,3 +10,9 @@
 [submodule "extension/repository"]
 	path = extension/repository
 	url = https://github.com/arsaga-partners/AndroidRepositoryExtensions.git
+[submodule "extension/compose"]
+	path = extension/compose
+	url = git@github.com:arsaga-partners/AndroidComposeExtension.git
+[submodule "extension/repositoryFlow"]
+	path = extension/repositoryFlow
+	url = git@github.com:arsaga-partners/AndroidRepositoryFlowExtensions.git

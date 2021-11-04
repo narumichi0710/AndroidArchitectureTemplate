@@ -26,14 +26,22 @@ object ModuleStructure {
      */
     enum class LayerType {
         /**
-         * レイアウト・アニメーション・ナビゲーション・端末依存解決について書くレイヤー
-         * 主にActivity, Fragment,, View, Navigation, アニメーション関連のクラスを置く
+         * ナビゲーション・端末依存解決について書くレイヤー
+         * 主にActivity, Fragment, View, Navigation, アニメーション関連のクラスを置く
          * 依存関係にまつわる主な処理はServiceにあるNavigatorを継承したクラスの作成、
          * ViewModelのコンストラクタに渡すことと、ViewModelに作ったViewEventのListenerとViewを紐づけること
          * 他の依存はデータバインディングで解決していく
          * ForegroundServiceもここで作成していく
          */
         view,
+
+        /**
+         * レイアウト・アニメーションについて記述するレイヤー
+         * JetpackComposeのプレビューを高速化するために作成した
+         * KotlinとComposeとentityのみに依存しているため、
+         * Navigationや状態の受け取りはViewレイヤーで行うものとする
+         */
+        layout,
 
         /**
          * AACのViewModelを継承するクラスを置くモジュール
@@ -99,7 +107,12 @@ object ModuleStructure {
             // coreモジュール
             ProjectModule.Type._presentation_view_core -> {
                 api(ProjectModule.Type._presentation_viewModel_core)
+                api(ProjectModule.Type._presentation_layout_core)
                 api(ProjectModule.Type._extension_view)
+            }
+            ProjectModule.Type._presentation_layout_core -> {
+                api(ProjectModule.Type._extension_compose)
+                api(ProjectModule.Type._domain_entity_core)
             }
             ProjectModule.Type._presentation_viewModel_core -> {
                 api(ProjectModule.Type._domain_useCase_core)
@@ -110,6 +123,7 @@ object ModuleStructure {
                 api(ProjectModule.Type._dataStore_gateway_sdk)
                 api(ProjectModule.Type._dataStore_gateway_server)
                 api(ProjectModule.Type._domain_useCase_core)
+                api(ProjectModule.Type._extension_repositoryFlow)
                 api(ProjectModule.Type._extension_gateway)
             }
             // gatewayモジュール
@@ -129,8 +143,10 @@ object ModuleStructure {
             }
             // 依存モジュールを持たないもの
             ProjectModule.Type._extension_view,
+            ProjectModule.Type._extension_compose,
             ProjectModule.Type._extension_viewModel,
             ProjectModule.Type._extension_repository,
+            ProjectModule.Type._extension_repositoryFlow,
             ProjectModule.Type._extension_gateway -> {
             }
             else -> {

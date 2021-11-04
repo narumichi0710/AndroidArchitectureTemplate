@@ -63,8 +63,7 @@ object StaticScript {
         "META-INF/*.kotlin_module",
         "META-INF/*.md",
         "/META-INF/AL2.0",
-        "/META-INF/LGPL2.1",
-        "**/kotlin/**"
+        "/META-INF/LGPL2.1"
     )
 
     /**
@@ -86,7 +85,7 @@ object StaticScript {
                         ProjectProperty.BuildTypeType.values().forEach { buildTypeType ->
                             executeBuildType(isRoot, baseExtension, this, flavorType, buildTypeType)
                             executeBuildConfig(this@create, flavorType, buildTypeType)
-                            executeManifestPlaceHolder(baseExtension, flavorType, buildTypeType)
+                            executeManifestPlaceHolder(this@create, flavorType, buildTypeType)
                         }
                     }
                 }
@@ -155,6 +154,7 @@ object StaticScript {
         buildType: BuildType
     ) = buildType.apply {
         signingConfig = baseExtension.signingConfigs.getByName("debug")
+        setDebuggable(true)
         baseExtension.splits {
             abi.isEnable = false
             density.isEnable = false
@@ -165,13 +165,13 @@ object StaticScript {
      * ManifestPlaceHolderTypeからManifestPlaceHolderに値を設定する
      */
     private fun executeManifestPlaceHolder(
-        baseExtension: BaseExtension,
+        baseFlavor: BaseFlavor,
         flavorType: ProjectProperty.FlavorType,
         buildTypeType: ProjectProperty.BuildTypeType
     ) {
         ProjectProperty.ManifestPlaceHolderType.values()
             .map { it.name to it.value(flavorType, buildTypeType) }
-            .let { baseExtension.defaultConfig.addManifestPlaceholders(it.toMap()) }
+            .let { baseFlavor.addManifestPlaceholders(it.toMap()) }
     }
 
     /**

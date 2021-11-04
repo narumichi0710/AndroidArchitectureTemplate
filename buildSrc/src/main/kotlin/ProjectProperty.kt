@@ -16,7 +16,7 @@ object ProjectProperty {
      * CIやgradle.propertiesからのビルド環境変数名のタイプ一覧
      */
     enum class LocalVariantType {
-        ANDROID_KEY_PASSWORD, ANDROID_STORE_PASSWORD, ANDROID_KEY_ALIAS
+        ANDROID_KEY_PASSWORD, ANDROID_STORE_PASSWORD, ANDROID_KEY_ALIAS, ENCODED_DEBUG_KEYSTORE
     }
 
     /**
@@ -63,7 +63,7 @@ object ProjectProperty {
             (flavorType != FlavorType.prod).toString()
         }),
         BASE_URL(BuildConfigType.String, { flavorType, _ ->
-            if (flavorType == FlavorType.prod) baseUrl(UrlType.API, "")
+            if (flavorType == FlavorType.prod) baseUrl(UrlType.API, null)
             else baseUrl(UrlType.API, flavorType.name)
         }),
         ArrayMock(CustomBuildConfigType.StringArray, {_, _ -> "new java.util.ArrayList<>()"})

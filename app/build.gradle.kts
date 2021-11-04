@@ -2,6 +2,7 @@ import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
+import java.util.concurrent.TimeUnit
 import com.android.build.gradle.BaseExtension
 import com.android.build.api.dsl.ApplicationVariantDimension
 
@@ -24,7 +25,17 @@ fun signing(
     baseExtension.signingConfigs {
         val localProperties = gradleLocalProperties(rootDir)
         create(ProjectProperty.BuildTypeType.release.name) {
-            storeFile = file("../keystore.jks")
+            val fileName = project.rootDir.path.plus("/app/keystore.jks")
+            localProperties
+                .getProperty(ProjectProperty.LocalVariantType.ENCODED_DEBUG_KEYSTORE.name)?.let {
+                    ProcessBuilder("sh", "-c", "echo $it | base64 -d > $fileName")
+                        .redirectErrorStream(true)
+                        .start()?.let {
+                            it.waitFor(20L, TimeUnit.SECONDS)
+                            it.destroy()
+                        }
+                }
+            storeFile = File(fileName)
             storePassword = localProperties
                 .getProperty(ProjectProperty.LocalVariantType.ANDROID_STORE_PASSWORD.name)
             keyPassword = localProperties
@@ -42,6 +53,7 @@ plugins {
     kotlin("android")
 //    id("com.google.gms.google-services")
 //    id("com.google.firebase.crashlytics")
+    id("androidx.navigation.safeargs.kotlin")
 }
 
 moduleStructure()

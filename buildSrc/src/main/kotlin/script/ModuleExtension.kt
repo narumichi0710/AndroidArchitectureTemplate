@@ -65,10 +65,13 @@ object ModuleExtension {
     ): List<ModuleStructure.LayerType> = when (moduleType.layerType) {
         ModuleStructure.LayerType.view ->
             listOf(
+                ModuleStructure.LayerType.layout,
                 ModuleStructure.LayerType.viewModel,
                 ModuleStructure.LayerType.useCase,
                 ModuleStructure.LayerType.entity
             )
+        ModuleStructure.LayerType.layout ->
+            listOf(ModuleStructure.LayerType.entity)
         ModuleStructure.LayerType.viewModel ->
             listOf(
                 ModuleStructure.LayerType.repository,
