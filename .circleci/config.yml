@@ -193,36 +193,42 @@ jobs:
         environment:
             ENV: dev
         executor: android
+        resource_class: medium+
         steps:
             - deploy_flow
     deploy_prod:
         environment:
             ENV: prod
         executor: android
+        resource_class: medium+
         steps:
             - deploy_flow
     deploy_stg:
         environment:
             ENV: stg
         executor: android
+        resource_class: medium+
         steps:
             - deploy_flow
     merge_dev:
         environment:
             ENV: dev
         executor: android
+        resource_class: medium+
         steps:
             - test_flow
     merge_prod:
         environment:
             ENV: prod
         executor: android
+        resource_class: medium+
         steps:
             - test_flow
     merge_stg:
         environment:
             ENV: stg
         executor: android
+        resource_class: medium+
         steps:
             - test_flow
     release_aab:
