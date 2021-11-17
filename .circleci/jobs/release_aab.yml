@@ -1,0 +1,6 @@
+executor: android
+resource_class: medium+
+environment:
+  ENV: prod
+steps:
+  - release_flow

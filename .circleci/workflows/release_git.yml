@@ -1,0 +1,7 @@
+jobs:
+  - release_aab:
+      filters:
+        branches:
+          ignore: /.*/
+        tags:
+          only: /^\d+\.\d+\.\d+$/

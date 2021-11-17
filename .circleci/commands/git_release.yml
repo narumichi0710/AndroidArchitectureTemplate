@@ -1,0 +1,26 @@
+steps:
+  - jq/install
+  - run:
+      name: Create ReleaseTag
+      command: |
+        curl -u ${GITHUB_PERSONAL_ACCESS_TOKEN}  \
+          -H "Accept: application/vnd.github.v3+json" \
+          -ks https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/releases  \
+          -X POST -d '{"tag_name":"'"$CIRCLE_TAG"'"}'
+  - run:
+      name: Release
+      command: |
+        RELEASE_ID=`curl  -u ${GITHUB_PERSONAL_ACCESS_TOKEN}  \
+          -H "Accept: application/vnd.github.v3+json" \
+          -ks https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/releases/tags/$CIRCLE_TAG \
+          | jq '.id'`
+        echo RELEASE_ID ${RELEASE_ID}
+        echo CIRCLE_PROJECT_USERNAME ${CIRCLE_PROJECT_USERNAME}
+        echo CIRCLE_PROJECT_REPONAME ${CIRCLE_PROJECT_REPONAME}
+        echo CIRCLE_TAG ${CIRCLE_TAG}
+        curl --data-binary @./app/build/outputs/bundle/prodRelease/app-prod-release.aab  \
+          -X POST \
+          -H "Content-Type: application/zip" -H  \
+          -H "Accept: application/vnd.github.v3+json" \
+          -u ${GITHUB_PERSONAL_ACCESS_TOKEN}  \
+          -ks https://uploads.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/releases/$RELEASE_ID/assets?name=app-prod-release.aab

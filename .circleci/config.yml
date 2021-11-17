@@ -75,6 +75,33 @@ commands:
             - decode_local_properties
             - build_apk
             - deploy
+    git_release:
+        steps:
+            - jq/install
+            - run:
+                command: |
+                    curl -u ${GITHUB_PERSONAL_ACCESS_TOKEN}  \
+                      -H "Accept: application/vnd.github.v3+json" \
+                      -ks https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/releases  \
+                      -X POST -d '{"tag_name":"'"$CIRCLE_TAG"'"}'
+                name: Create ReleaseTag
+            - run:
+                command: |-
+                    RELEASE_ID=`curl  -u ${GITHUB_PERSONAL_ACCESS_TOKEN}  \
+                      -H "Accept: application/vnd.github.v3+json" \
+                      -ks https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/releases/tags/$CIRCLE_TAG \
+                      | jq '.id'`
+                    echo RELEASE_ID ${RELEASE_ID}
+                    echo CIRCLE_PROJECT_USERNAME ${CIRCLE_PROJECT_USERNAME}
+                    echo CIRCLE_PROJECT_REPONAME ${CIRCLE_PROJECT_REPONAME}
+                    echo CIRCLE_TAG ${CIRCLE_TAG}
+                    curl --data-binary @./app/build/outputs/bundle/prodRelease/app-prod-release.aab  \
+                      -X POST \
+                      -H "Content-Type: application/zip" -H  \
+                      -H "Accept: application/vnd.github.v3+json" \
+                      -u ${GITHUB_PERSONAL_ACCESS_TOKEN}  \
+                      -ks https://uploads.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/releases/$RELEASE_ID/assets?name=app-prod-release.aab
+                name: Release
     merge_pull_request:
         steps:
             - run:
@@ -93,6 +120,12 @@ commands:
                       -ks https://api.github.com/repos/${PROJECT_NAME}/pulls/${PULL_REQUEST_NUMBER}/merge \
                       -d '{"commit_title":"${RELEASE_NOTE}"}'
                 name: Merge Pull Request
+    release_flow:
+        steps:
+            - checkout_submodule
+            - decode_local_properties
+            - build_bundle
+            - git_release
     test_apk:
         steps:
             - run:
@@ -192,6 +225,13 @@ jobs:
         executor: android
         steps:
             - test_flow
+    release_aab:
+        environment:
+            ENV: prod
+        executor: android
+        resource_class: medium+
+        steps:
+            - release_flow
 orbs:
     android: circleci/android@1.0.3
     gcp-cli: circleci/gcp-cli@2.2.0
@@ -253,4 +293,12 @@ workflows:
                     branches:
                         only:
                             - master
+    release_git:
+        jobs:
+            - release_aab:
+                filters:
+                    branches:
+                        ignore: /.*/
+                    tags:
+                        only: /^\d+\.\d+\.\d+$/
 

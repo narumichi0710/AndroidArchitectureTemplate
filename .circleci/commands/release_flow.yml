@@ -1,0 +1,5 @@
+steps:
+  - checkout_submodule
+  - decode_local_properties
+  - build_bundle
+  - git_release
