@@ -9,9 +9,9 @@ steps:
         RELEASE_NOTE=`curl -u ${GITHUB_PERSONAL_ACCESS_TOKEN}  \
           -ks https://api.github.com/repos/${PROJECT_NAME}/pulls/${PULL_REQUEST_NUMBER}  \
           | jq -r .title`
-        echo RELEASE_NOTE:${RELEASE_NOTE}
         curl -u ${GITHUB_PERSONAL_ACCESS_TOKEN}  \
           -X PUT \
           -H "Accept: application/vnd.github.v3+json" \
           -ks https://api.github.com/repos/${PROJECT_NAME}/pulls/${PULL_REQUEST_NUMBER}/merge \
-          -d '{"commit_title":"${RELEASE_NOTE}"}'
+          -d '{"commit_title":"'"${RELEASE_NOTE}"'"}'
+        echo RELEASE_NOTE:${RELEASE_NOTE}

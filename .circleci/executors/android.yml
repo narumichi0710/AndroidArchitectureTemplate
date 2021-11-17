@@ -4,7 +4,7 @@ environment:
   JVM_OPTS: -Xmx1536m
   GRADLE_OPTS: '
     -Dorg.gradle.daemon=false
-    -Dorg.gradle.jvmargs="-Xmx1536m
+    -Dorg.gradle.jvmargs="-Xmx2048m
     -XX:+HeapDumpOnOutOfMemoryError"
     -Dkotlin.compiler.execution.strategy=in-process
     -Dkotlin.incremental=false

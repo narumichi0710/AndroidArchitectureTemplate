@@ -2,6 +2,6 @@ steps:
   - run:
       name: Build Bundle
       command: |
-        ./gradlew clean
+        ./gradlew --no-daemon clean
         ./gradlew --stop
-        ./gradlew "bundle${ENV[@]~}Release" --max-workers 1
+        ./gradlew --no-daemon "bundle${ENV[@]~}Release" --max-workers 1

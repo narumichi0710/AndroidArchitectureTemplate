@@ -2,6 +2,6 @@ steps:
   - run:
       name: Build Apk
       command: |
-        ./gradlew clean
+        ./gradlew --no-daemon clean
         ./gradlew --stop
-        ./gradlew "assemble${ENV[@]~}Release" --max-workers 1
+        ./gradlew --no-daemon "assemble${ENV[@]~}Release" --max-workers 1

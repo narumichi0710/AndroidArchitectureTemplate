@@ -2,6 +2,6 @@ steps:
   - run:
       name: Test Apk
       command: |
-        ./gradlew clean
+        ./gradlew --no-daemon clean
         ./gradlew --stop
-        ./gradlew "test${ENV[@]~}ReleaseUnitTest"  --max-workers 1
+        ./gradlew "test${ENV[@]~}DebugUnitTest"  --max-workers 1

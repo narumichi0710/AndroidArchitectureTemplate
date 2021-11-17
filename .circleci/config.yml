@@ -3,17 +3,17 @@ commands:
         steps:
             - run:
                 command: |
-                    ./gradlew clean
+                    ./gradlew --no-daemon clean
                     ./gradlew --stop
-                    ./gradlew "assemble${ENV[@]~}Release" --max-workers 1
+                    ./gradlew --no-daemon "assemble${ENV[@]~}Release" --max-workers 1
                 name: Build Apk
     build_bundle:
         steps:
             - run:
                 command: |-
-                    ./gradlew clean
+                    ./gradlew --no-daemon clean
                     ./gradlew --stop
-                    ./gradlew "bundle${ENV[@]~}Release" --max-workers 1
+                    ./gradlew --no-daemon "bundle${ENV[@]~}Release" --max-workers 1
                 name: Build Bundle
     check_merge_branch:
         steps:
@@ -113,12 +113,12 @@ commands:
                     RELEASE_NOTE=`curl -u ${GITHUB_PERSONAL_ACCESS_TOKEN}  \
                       -ks https://api.github.com/repos/${PROJECT_NAME}/pulls/${PULL_REQUEST_NUMBER}  \
                       | jq -r .title`
-                    echo RELEASE_NOTE:${RELEASE_NOTE}
                     curl -u ${GITHUB_PERSONAL_ACCESS_TOKEN}  \
                       -X PUT \
                       -H "Accept: application/vnd.github.v3+json" \
                       -ks https://api.github.com/repos/${PROJECT_NAME}/pulls/${PULL_REQUEST_NUMBER}/merge \
-                      -d '{"commit_title":"${RELEASE_NOTE}"}'
+                      -d '{"commit_title":"'"${RELEASE_NOTE}"'"}'
+                    echo RELEASE_NOTE:${RELEASE_NOTE}
                 name: Merge Pull Request
     release_flow:
         steps:
@@ -130,9 +130,9 @@ commands:
         steps:
             - run:
                 command: |-
-                    ./gradlew clean
+                    ./gradlew --no-daemon clean
                     ./gradlew --stop
-                    ./gradlew "test${ENV[@]~}ReleaseUnitTest"  --max-workers 1
+                    ./gradlew "test${ENV[@]~}DebugUnitTest"  --max-workers 1
                 name: Test Apk
     test_flow:
         steps:
@@ -145,7 +145,7 @@ executors:
         docker:
             - image: circleci/android:api-30
         environment:
-            GRADLE_OPTS: ' -Dorg.gradle.daemon=false -Dorg.gradle.jvmargs="-Xmx1536m -XX:+HeapDumpOnOutOfMemoryError" -Dkotlin.compiler.execution.strategy=in-process -Dkotlin.incremental=false '
+            GRADLE_OPTS: ' -Dorg.gradle.daemon=false -Dorg.gradle.jvmargs="-Xmx2048m -XX:+HeapDumpOnOutOfMemoryError" -Dkotlin.compiler.execution.strategy=in-process -Dkotlin.incremental=false '
             JVM_OPTS: -Xmx1536m
     circleci-cli:
         docker:
