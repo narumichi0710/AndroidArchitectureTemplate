@@ -72,7 +72,7 @@ commands:
                     firebase appdistribution:distribute ./app/build/outputs/apk/${ENV}/release/app-${ENV}-release.apk  \
                     --app ${APP_ID}  \
                     --token ${FIREBASE_AUTH_TOKEN}  \
-                    --testers "${SLACK_RELATION_MAILADRESS}"  \
+                    --testers-file "./.circleci/tester/${ENV}.txt"  \
                     --release-notes "${RELEASE_NOTE}"  \
                 name: Deploy
     deploy_flow:
@@ -204,6 +204,7 @@ orbs:
     android: circleci/android@1.0.3
     gcp-cli: circleci/gcp-cli@2.2.0
     jq: circleci/jq@2.2.0
+tester: {}
 version: 2.1
 workflows:
     merge_and_deploy:

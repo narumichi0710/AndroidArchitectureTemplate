@@ -18,5 +18,5 @@ steps:
         firebase appdistribution:distribute ./app/build/outputs/apk/${ENV}/release/app-${ENV}-release.apk  \
         --app ${APP_ID}  \
         --token ${FIREBASE_AUTH_TOKEN}  \
-        --testers "${SLACK_RELATION_MAILADRESS}"  \
+        --testers-file "./.circleci/tester/${ENV}.txt"  \
         --release-notes "${RELEASE_NOTE}"  \
