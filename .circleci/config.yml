@@ -40,12 +40,6 @@ commands:
                     git submodule init
                     git submodule update
                 name: Checkout Submodule
-    decode_keystore:
-        steps:
-            - run:
-                command: |
-                    echo $ENCODED_DEBUG_KEYSTORE | base64 --decode > keystore.jks
-                name: Decode KeyStore
     decode_local_properties:
         steps:
             - run:
@@ -78,7 +72,6 @@ commands:
     deploy_flow:
         steps:
             - checkout_submodule
-            - decode_keystore
             - decode_local_properties
             - build_apk
             - deploy
@@ -111,7 +104,6 @@ commands:
     test_flow:
         steps:
             - checkout_submodule
-            - decode_keystore
             - decode_local_properties
             - test_apk
             - merge_pull_request

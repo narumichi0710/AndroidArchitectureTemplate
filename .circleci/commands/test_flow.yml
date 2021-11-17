@@ -1,6 +1,5 @@
 steps:
   - checkout_submodule
-  - decode_keystore
   - decode_local_properties
   - test_apk
   - merge_pull_request
