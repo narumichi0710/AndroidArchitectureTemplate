@@ -8,7 +8,7 @@
 
 ## 使い方
 1. Github上でこのレポジトリを複製する
-2. プロジェクト設定の値を修正する => (https://github.com/arsaga-partners/AndroidArchitectureTemplate/blob/develop/buildSrc/src/main/kotlin/ProjectProperty.kt)
+2. プロジェクト設定の値を修正する => [プロジェクト設定](./buildSrc/src/main/kotlin/ProjectProperty.kt)、[モジュール設定](./buildSrc/src/main/kotlin/ModuleStructure.kt)
 3. Gitサブモジュールを有効化する
 
 ## モジュール自動生成機能の使い方
