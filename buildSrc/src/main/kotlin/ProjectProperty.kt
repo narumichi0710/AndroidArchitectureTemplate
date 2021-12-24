@@ -47,7 +47,10 @@ object ProjectProperty {
             } else {
                 flavorType.name
             }.plus("アルサーガテンプレート")
-        })
+        }),
+        deepLinkHost({ _, _ ->
+            ""
+        }),
     }
 
     /**
