@@ -19,11 +19,11 @@ class DeepLinkActivity : AppCompatActivity() {
 
     private fun executeDeepLink() {
         if (isAuth()) {
-            Intent(this, AuthActivity::class.java)
-                .setFlags(FLAG_ACTIVITY_SINGLE_TOP)
-        } else {
             Intent(this, MainActivity::class.java)
                 .setFlags(FLAG_ACTIVITY_CLEAR_TOP)
+        } else {
+            Intent(this, AuthActivity::class.java)
+                .setFlags(FLAG_ACTIVITY_SINGLE_TOP)
         }.let {
             startActivity(it, null)
         }
@@ -36,4 +36,3 @@ class DeepLinkActivity : AppCompatActivity() {
         finish()
     }
 }
-
