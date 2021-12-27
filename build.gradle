@@ -9,7 +9,7 @@ buildscript {
     //コピペを簡便にするためのプロジェクトテンプレートにあるライブラリ専用のバージョン置き場
     ext.kotlin_version = "1.5.31"
     ext.coroutine_version = "1.5.2"
-    ext.hilt_version = "2.40"
+    ext.hilt_version = "2.40.5"
     ext.nav_version = "2.3.5"
     ext.lifecycle_version = "2.4.0"
     ext.timber_version = "5.0.1"
@@ -22,7 +22,7 @@ buildscript {
     ext.glide_version = "4.12.0"
     ext.retrofit_version = "2.9.0"
     ext.okhttp_version = '4.9.2'
-    ext.serialization_version = '1.3.0'
+    ext.serialization_version = '1.3.2'
     ext.serialization_converter_version = '0.8.0'
     ext.compose_version = '1.0.4'
     ext.accompanist_version = '0.20.0'
@@ -33,7 +33,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath "com.android.tools.build:gradle:7.0.3"
+        classpath "com.android.tools.build:gradle:7.0.4"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$nav_version"
         classpath "com.google.dagger:hilt-android-gradle-plugin:$hilt_version"
