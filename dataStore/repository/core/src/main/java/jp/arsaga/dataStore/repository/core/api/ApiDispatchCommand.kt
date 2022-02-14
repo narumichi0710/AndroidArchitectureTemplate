@@ -20,7 +20,7 @@ import java.net.UnknownHostException
 
 class ApiDispatchCommand<Res, Req>(
     apiCall: (Req?) -> (suspend () -> Response<Res>)?,
-    private val apiContext: ApiContext<Res, Req>
+    apiContext: ApiContext<Res, Req>
 ) : AbstractApiDispatchCommand<Res, Req>(apiCall, apiContext) {
 
     companion object {
