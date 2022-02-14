@@ -12,6 +12,15 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ArchitectureTemplate"
         tools:ignore="LockedOrientationActivity">
+
+        <service
+            android:name=".notification.PushNotificationService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
         <activity
             android:name=".activity.DeepLinkActivity"
             android:launchMode="singleTask"
